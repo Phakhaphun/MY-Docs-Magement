@@ -48,11 +48,12 @@
           <img id="previewImage" alt="Selected PDF page preview" draggable="false" hidden>
         </div>
         <div class="page-controls"><span id="previewHint">Page preview</span><div class="pager"><button id="prevPage" class="icon-button" title="Previous page" aria-label="Previous page">‹</button><span id="pageLabel">— / —</span><button id="nextPage" class="icon-button" title="Next page" aria-label="Next page">›</button></div><span id="previewFormat" class="preview-tag">PDF → JPG</span></div>
+        <div class="page-selection"><label for="pageMode">Export pages</label><select id="pageMode" disabled><option value="all">All pages</option><option value="current">Current page</option><option value="custom">Custom pages</option><option value="even">Even pages</option><option value="odd">Odd pages</option></select><input id="pageSelection" placeholder="e.g. 1-3, 5" aria-label="Custom pages to export" disabled hidden><small id="pageSelectionHint"></small></div>
       </section>
     </section>
 
     <section class="export-settings" aria-label="Export settings">
-      <div class="settings-heading"><h2>Export settings</h2><span>One image for every page</span></div>
+      <div class="settings-heading"><h2>Export settings</h2><span>One image for every selected page</span></div>
       <div class="settings-row">
         <label class="format-field">Format <select id="imageFormat"><option value="jpg">JPG</option><option value="png">PNG (lossless)</option><option value="webp">WebP</option></select></label>
         <label class="number-field">Resolution <span class="input-wrap"><input id="dpi" type="number" min="36" max="600" step="1" value="200"><span>DPI</span></span></label>
@@ -61,7 +62,7 @@
       </div>
     </section>
 
-    <footer><div class="progress-area"><div class="progress-caption"><span id="statusText" role="status">Connecting to your workspace…</span><span id="progressLabel"></span></div><div class="progress-track" role="progressbar" aria-label="Conversion progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div id="progressBar"></div></div></div><button id="convertBtn" class="primary-button" disabled>Convert to JPG <svg><use href="#i-arrow"/></svg></button></footer>
+    <footer><div class="progress-area"><div class="progress-caption"><span id="statusText" role="status">Connecting to your workspace…</span><span id="progressLabel"></span></div><div class="progress-track" role="progressbar" aria-label="Conversion progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div id="progressBar"></div></div></div><button id="cancelBtn" class="secondary-button" hidden>Cancel conversion</button><button id="convertBtn" class="primary-button" disabled>Convert to JPG <svg><use href="#i-arrow"/></svg></button></footer>
   </main>
   <div id="toast" class="toast" role="alert" hidden></div>
   <dialog id="completionDialog" class="completion-dialog" aria-labelledby="completionTitle" aria-describedby="completionSummary">

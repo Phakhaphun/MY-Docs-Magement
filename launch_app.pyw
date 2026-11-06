@@ -8,6 +8,7 @@ import sys
 import time
 import tkinter as tk
 from tkinter import ttk
+from PIL import Image, ImageTk
 from uuid import uuid4
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -35,7 +36,9 @@ class StartupWindow:
             pass
         frame = tk.Frame(root, bg="#f3f8fd", padx=30, pady=24)
         frame.pack(fill="both", expand=True)
-        self.logo = tk.PhotoImage(file=str(BASE_DIR / "ui" / "assets" / "docspace.png"))
+        logo_size = round(64 * max(1, root.winfo_fpixels("1i") / 96))
+        with Image.open(BASE_DIR / "ui" / "assets" / "docspace.png") as source:
+            self.logo = ImageTk.PhotoImage(source.resize((logo_size, logo_size), Image.Resampling.LANCZOS))
         tk.Label(frame, image=self.logo, bg="#f3f8fd").pack()
         tk.Label(frame, text="Docspace", bg="#f3f8fd", fg="#18324d", font=("Segoe UI", 22, "bold")).pack(pady=(9, 0))
         tk.Label(frame, text="Documents & Temperature Heatmap", bg="#f3f8fd", fg="#647c94", font=("Segoe UI", 10)).pack(pady=(2, 20))

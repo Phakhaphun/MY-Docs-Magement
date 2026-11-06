@@ -7,6 +7,40 @@ let settingsInitialized = false, lastCompletionId = null;
 let settingsSaveQueue = Promise.resolve();
 let fitWidth = 0;
 let startupAcknowledged = false;
+let selectionQueue = Promise.resolve(), selectionOwner = null;
+const pageDrafts = new Map();
+
+function syncPageSelection() {
+  const file = state.files.find(file => file.id === selectedId);
+  if (selectionOwner !== selectedId) {
+    selectionOwner = selectedId;
+    const draft = file && pageDrafts.get(file.id);
+    $("pageMode").value = draft?.mode ?? file?.page_mode ?? "all";
+    $("pageSelection").value = draft?.selection ?? (file?.page_mode === "custom" ? file.page_selection : "") ?? "";
+  }
+  const mode = $("pageMode").value;
+  $("pageMode").disabled = state.running || bridgeBusy || !file?.pages;
+  $("pageSelection").disabled = state.running || bridgeBusy || !file?.pages;
+  $("pageSelection").hidden = mode !== "custom";
+  $("pageSelectionHint").textContent = mode === "current" && file ? `Page ${currentPage + 1}` : "";
+}
+
+function pageChoice() {
+  return {selection: $("pageSelection").value, mode: $("pageMode").value, currentPage: currentPage + 1};
+}
+
+function savePageSelection() {
+  const fileId = selectedId, value = pageChoice();
+  if (!fileId || state.running || !state.files.find(file => file.id === fileId)?.pages) return selectionQueue;
+  pageDrafts.set(fileId, value);
+  selectionQueue = selectionQueue.catch(() => {}).then(async () => {
+    const result = await call("set_page_selection", fileId, value.selection, value.mode, value.currentPage);
+    if (result.error) throw new Error(result.error);
+    if (pageDrafts.get(fileId) === value) pageDrafts.delete(fileId);
+    applyState(result);
+  });
+  return selectionQueue;
+}
 
 function setMenuExpanded(expanded) {
   document.body.classList.toggle("nav-expanded", expanded);
@@ -45,6 +79,10 @@ async function action(method, ...args) {
 
 function syncButtons() {
   const locked = state.running || bridgeBusy;
+  syncPageSelection();
+  $("cancelBtn").hidden = !state.running;
+  $("cancelBtn").disabled = !!state.cancelling;
+  $("cancelBtn").textContent = state.cancelling ? "Cancelling…" : "Cancel conversion";
   for (const id of ["addBtn", "emptyAddBtn", "clearBtn", "browseBtn", "dpi", "quality", "imageFormat"]) $(id).disabled = locked;
   const imageFormat = $("imageFormat").value;
   const formatLabel = imageFormat === "webp" ? "WebP" : imageFormat.toUpperCase();
@@ -98,6 +136,8 @@ function applyState(next) {
 }
 
 function showCompletion(result) {
+  $("toast").hidden = true;
+  clearTimeout(toastTimer);
   const hasErrors = result.failed > 0;
   $("completionTitle").textContent = hasErrors ? (result.completed ? "Completed with errors" : "Conversion failed") : "Conversion complete";
   $("completionIcon").textContent = hasErrors ? "!" : "✓";
@@ -107,6 +147,12 @@ function showCompletion(result) {
   $("resultCompleted").textContent = result.completed;
   $("resultFailed").textContent = result.failed;
   $("completionNote").textContent = hasErrors ? "Check the document list for error details. Partially converted files may also have images in the output folder." : "Each PDF has its own folder. Your original files are unchanged.";
+  if (result.cancelled) {
+    $("completionTitle").textContent = "Conversion cancelled";
+    $("completionIcon").textContent = "−";
+    $("completionSummary").textContent = `${result.cancelled} PDF(s) cancelled. ${result.images} images saved.`;
+    $("completionNote").textContent = "Images already saved are kept. You can change pages or settings and convert again.";
+  }
   $("completionPath").textContent = result.output;
   if (!$("completionDialog").open) $("completionDialog").showModal();
 }
@@ -124,7 +170,8 @@ function renderFiles() {
     const info = document.createElement("div"); info.className = "file-info";
     const name = document.createElement("div"); name.className = "file-name"; name.textContent = file.name;
     const meta = document.createElement("div"); meta.className = "file-meta";
-    meta.textContent = `${file.pages} ${file.pages === 1 ? "page" : "pages"} · ${formatSize(file.size)}`;
+    const pageLabels = {all: "All pages", current: `Page ${file.current_page}`, even: "Even pages", odd: "Odd pages"};
+    meta.textContent = `${file.pages} ${file.pages === 1 ? "page" : "pages"} · ${formatSize(file.size)} · ${pageLabels[file.page_mode] ?? file.page_selection}`;
     const status = document.createElement("div"); status.className = "file-status " + file.status;
     status.textContent = file.detail; status.title = file.detail;
     info.append(name, meta, status);
@@ -231,6 +278,15 @@ $("navToggle").onclick = () => {
 };
 $("clearBtn").onclick = () => action("clear_files");
 $("browseBtn").onclick = () => action("choose_output");
+$("pageSelection").addEventListener("input", () => {if (selectedId) pageDrafts.set(selectedId, pageChoice());});
+$("pageMode").addEventListener("change", () => {
+  if (selectedId) pageDrafts.set(selectedId, pageChoice());
+  syncButtons();
+  if ($("pageMode").value === "custom" && !$("pageSelection").value.trim()) {$("pageSelection").focus(); return;}
+  savePageSelection().catch(error => notify(error.message));
+});
+$("pageSelection").addEventListener("change", () => {savePageSelection().catch(error => notify(error.message));});
+$("cancelBtn").onclick = () => action("cancel_conversion");
 $("completionDone").onclick = () => $("completionDialog").close();
 $("completionOpen").onclick = () => action("open_output");
 for (const id of ["dpi", "quality", "imageFormat"]) {
@@ -255,6 +311,15 @@ $("convertBtn").onclick = async () => {
     notify("Use DPI 36–600 and quality 1–100 (whole numbers)."); return;
   }
   await settingsSaveQueue;
+  try {
+    await savePageSelection();
+    for (const [fileId, value] of pageDrafts) {
+      if (!state.files.some(file => file.id === fileId)) {pageDrafts.delete(fileId); continue;}
+      const result = await call("set_page_selection", fileId, value.selection, value.mode, value.currentPage);
+      if (result.error) throw new Error(result.error);
+      pageDrafts.delete(fileId);
+    }
+  } catch (error) {notify(error.message); return;}
   action("start_conversion", dpi, quality, imageFormat);
 };
 $("prevPage").onclick = () => { if (currentPage > 0) { currentPage--; loadPreview(); } };
@@ -264,4 +329,15 @@ $("zoomIn").onclick = () => zoomPreview(zoom + .25);
 $("zoomOut").onclick = () => zoomPreview(zoom - .25);
 document.addEventListener("keydown", event => { if (event.ctrlKey && event.key.toLowerCase() === "o") { event.preventDefault(); if (!state.running) action("choose_files"); } });
 window.addEventListener("pywebviewready", () => { poll(); setInterval(poll, 400); });
+document.addEventListener("dragover", event => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = state.running ? "none" : "copy";
+  document.body.classList.toggle("drag-active", !state.running);
+});
+document.addEventListener("dragleave", event => {if (!event.relatedTarget) document.body.classList.remove("drag-active");});
+document.addEventListener("drop", event => {
+  event.preventDefault(); document.body.classList.remove("drag-active");
+  if (state.running) {notify("Wait for conversion to finish before adding PDFs."); return;}
+  if (window.parent !== window) window.parent.forwardPDFDrop(event.dataTransfer);
+});
 syncButtons();

@@ -8,19 +8,21 @@
     *{box-sizing:border-box}body{margin:0;display:flex;height:100vh;overflow:hidden;font:14px "Segoe UI",Tahoma,sans-serif;color:#18324d;background:#f3f8fd}
     aside{width:190px;flex-shrink:0;background:white;border-right:1px solid #dee8f2;display:flex;flex-direction:column;padding:26px 14px;gap:10px}
     .brand{font-size:23px;font-weight:650;letter-spacing:-.5px;padding:0 10px}.subtitle{font-size:11px;color:#647c94;padding:0 10px;margin-bottom:24px}
+    .brand{display:flex;align-items:center;gap:9px;padding:0 4px}.brand>svg{width:36px;height:36px;flex-shrink:0}.nav-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}nav button{display:flex;align-items:center;gap:10px}
     nav{display:flex;flex-direction:column;gap:8px}button{font:inherit;cursor:pointer;border:1px solid transparent;border-radius:10px;background:transparent;color:#647c94;text-align:left;padding:13px 12px}
     button[aria-selected=true]{background:#e7f2ff;border-color:#cfe2fb;color:#2563c6;font-weight:600}button:hover{background:#f3f8fd}button:focus-visible{outline:2px solid #2563c6;outline-offset:2px}
     .local{margin-top:auto;font-size:10px;color:#647c94;padding:10px;line-height:1.8}.dot{color:#25866b}main{flex:1;min-width:0;position:relative}iframe{border:0;width:100%;height:100%;display:block;background:#f3f8fd}iframe[hidden]{display:none}
     #connection{position:absolute;bottom:8px;left:20px;color:#ba3544;font-size:12px;background:#fff;padding:6px 10px;border-radius:6px}#connection[hidden]{display:none}
     @media(max-width:1150px){aside{width:155px;padding:24px 8px}.brand{font-size:21px}button{padding:12px 8px;font-size:12px}}
+    @media(max-width:1150px){.brand{font-size:20px;gap:7px;padding:0}.brand>svg{width:30px;height:30px}}
   </style>
 </head>
 <body>
   <aside aria-label="Main navigation">
-    <div class="brand">Docspace</div><div class="subtitle">Main Management</div>
+    <div class="brand"><!-- APP_LOGO --><span>Docspace</span></div><div class="subtitle">Main Management</div>
     <nav role="tablist" aria-label="Workspaces" aria-orientation="vertical">
-      <button id="documentsTab" role="tab" aria-selected="true" aria-controls="documents" data-workspace="documents">▧ &nbsp; PDF to Image</button>
-      <button id="heatmapTab" role="tab" aria-selected="false" aria-controls="heatmap" data-workspace="heatmap" tabindex="-1">♨ &nbsp; Heatmap</button>
+      <button id="documentsTab" role="tab" aria-selected="true" aria-controls="documents" data-workspace="documents"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6"/><path d="m7 17 3-3 2 2 3-4 3 5"/></svg><span>PDF to Image</span></button>
+      <button id="heatmapTab" role="tab" aria-selected="false" aria-controls="heatmap" data-workspace="heatmap" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0ZM12 9v9m5-12h3m-3 4h2"/></svg><span>Heatmap</span></button>
     </nav>
     <div class="local"><span class="dot">●</span> Works offline<br>Files stay on this computer</div>
   </aside>
@@ -32,6 +34,11 @@
   <script>
     const methods = /* BRIDGE_METHODS */;
     const connected = new Set();
+    function forwardPDFDrop(dataTransfer) {
+      document.dispatchEvent(new DragEvent('drop', {dataTransfer, bubbles:true, cancelable:true}));
+    }
+    document.addEventListener('dragover', event => event.preventDefault());
+    document.addEventListener('drop', event => {event.preventDefault(); selectWorkspace('documents');});
     function connectFrame(name) {
       const frame = document.getElementById(name), child = frame.contentWindow;
       if (frame.hidden || !window.pywebview?.api || child.document.readyState !== "complete" || connected.has(name)) return;

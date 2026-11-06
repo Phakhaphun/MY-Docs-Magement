@@ -4,10 +4,11 @@ import base64
 from copy import deepcopy
 import os
 from pathlib import Path
-from threading import RLock, Thread
+from threading import Event, RLock, Thread
 from uuid import uuid4
 
-from pdf_to_jpg import BASE_DIR, IMAGE_FORMATS, convert_pdf_to_images
+from pdf_to_jpg import BASE_DIR, IMAGE_FORMATS, ConversionCancelled, parse_page_selection
+from pdf_worker import convert_in_process as convert_pdf_to_images
 from ui_settings import SETTINGS_PATH, load_settings, save_settings
 
 
@@ -19,11 +20,12 @@ class DocumentAPI:
         self._settings_path = Path(settings_path)
         self._recent = load_settings(self._settings_path)
         self._lock = RLock()
+        self._cancel = Event()
         self._files = []
         self._state = {
             "output": self._recent.get("output_dir", str(BASE_DIR / "output")),
             "input": self._recent.get("input_dir", str(BASE_DIR / "input")),
-            "running": False, "progress": 0, "message": "Add PDFs to start your workspace.",
+            "running": False, "cancelling": False, "progress": 0, "message": "Add PDFs to start your workspace.",
             "warning": "", "completed": 0, "failed": 0,
             "dpi": self._recent.get("dpi", 200), "quality": self._recent.get("quality", 95),
             "image_format": self._recent.get("image_format", "jpg"),
@@ -96,7 +98,8 @@ class DocumentAPI:
                 if any(item["path"] == str(path) for item in self._files):
                     continue
                 item = {"id": uuid4().hex, "name": path.name, "path": str(path),
-                        "pages": 0, "size": 0, "status": "ready", "detail": "Ready", "output": ""}
+                        "pages": 0, "page_selection": "", "page_mode": "all", "current_page": 1,
+                        "size": 0, "status": "ready", "detail": "Ready", "output": ""}
                 try:
                     if path.suffix.lower() != ".pdf":
                         raise ValueError("Please select a PDF file.")
@@ -117,6 +120,64 @@ class DocumentAPI:
             self._state["message"] = f"{len(self._files)} PDF(s) in your workspace."
             self._state["progress"] = 0
             return self.get_state()
+
+    def set_page_selection(self, file_id, selection, mode=None, current_page=None):
+        with self._lock:
+            if self._state["running"]:
+                return {"error": "Wait for conversion to finish before changing pages."}
+            item = next((f for f in self._files if f["id"] == file_id), None)
+            if not item or not item["pages"]:
+                return {"error": "Select a readable PDF first."}
+            try:
+                mode = mode or ("custom" if selection else "all")
+                current_page = item["current_page"] if current_page is None else current_page
+                if mode == "all":
+                    selection = ""
+                elif mode == "current":
+                    if type(current_page) is not int or not 1 <= current_page <= item["pages"]:
+                        raise ValueError("Current page is outside this document.")
+                    selection = str(current_page)
+                elif mode in ("even", "odd"):
+                    selection = ", ".join(str(p) for p in range(2 if mode == "even" else 1, item["pages"] + 1, 2))
+                    if not selection:
+                        raise ValueError("This document has no even pages.")
+                elif mode == "custom":
+                    if not isinstance(selection, str) or not selection.strip():
+                        raise ValueError("Enter pages to export, for example 1-3, 5.")
+                else:
+                    raise ValueError("Choose a valid page option.")
+                parse_page_selection(selection, item["pages"])
+            except ValueError as exc:
+                return {"error": str(exc)}
+            item["page_selection"] = selection.strip()
+            item["page_mode"] = mode
+            if mode == "current":
+                item["current_page"] = current_page
+            return self.get_state()
+
+    def cancel_conversion(self):
+        with self._lock:
+            if self._state["running"]:
+                self._cancel.set()
+                self._state.update(cancelling=True, message="Cancelling… finishing the current page operation.")
+            return self.get_state()
+
+    def _on_drop(self, event):
+        files = event.get("dataTransfer", {}).get("files", [])
+        paths = [f.get("pywebviewFullPath") for f in files if isinstance(f, dict)]
+        paths = [p for p in paths if isinstance(p, str) and p]
+        if paths:
+            self._add_files(paths)
+
+    def _bind_drop(self, selector=None):
+        """Use native pywebview paths rather than browser file-name placeholders."""
+        from webview.dom import DOMEventHandler
+        target = self._window.dom.get_element(selector) if selector else self._window.dom.document
+        if target is None:
+            return
+        target.events.dragover += DOMEventHandler(lambda event: None, prevent_default=True)
+        target.events.drop += DOMEventHandler(self._on_drop, prevent_default=True)
+        self._drop_target = target
 
     def choose_files(self):
         import webview
@@ -184,6 +245,12 @@ class DocumentAPI:
                 scale = min(2, 1400 / longest)
                 pixmap = pdf_page.get_pixmap(matrix=pymupdf.Matrix(scale, scale), colorspace=pymupdf.csRGB, alpha=False)
                 data = base64.b64encode(pixmap.tobytes("jpg", jpg_quality=85)).decode("ascii")
+                with self._lock:
+                    live = next((f for f in self._files if f["id"] == file_id), None)
+                    if live:
+                        live["current_page"] = page + 1
+                        if live["page_mode"] == "current":
+                            live["page_selection"] = str(page + 1)
                 return {"image": f"data:image/jpeg;base64,{data}", "page": page,
                         "pages": document.page_count, "width": pixmap.width, "height": pixmap.height}
         except Exception as exc:
@@ -205,7 +272,8 @@ class DocumentAPI:
             image_format = self._state["image_format"]
             for item in self._files:
                 item.update(status="waiting", detail="Waiting", output="")
-            self._state.update(running=True, progress=0, completed=0, failed=0, result=None, message="Starting conversion…")
+            self._cancel.clear()
+            self._state.update(running=True, cancelling=False, progress=0, completed=0, failed=0, result=None, message="Starting conversion…")
             jobs = deepcopy(self._files)
             output = self._state["output"]
             self._thread = Thread(target=self._convert, args=(jobs, output, dpi, quality, image_format), daemon=True)
@@ -214,12 +282,16 @@ class DocumentAPI:
 
     def _convert(self, jobs, output, dpi, quality, image_format):
         image_count = 0
+        cancelled_count = 0
         try:
             for index, job in enumerate(jobs):
+                if self._cancel.is_set():
+                    break
                 def update_progress(done, total):
                     with self._lock:
                         self._state["progress"] = (index + done / total) / len(jobs) * 100
-                        self._state["message"] = f"{job['name']} · page {done} of {total}"
+                        if not self._cancel.is_set():
+                            self._state["message"] = f"{job['name']} · exported {done} of {total} selected pages"
 
                 with self._lock:
                     item = next(f for f in self._files if f["id"] == job["id"])
@@ -227,7 +299,14 @@ class DocumentAPI:
                     self._state["message"] = f"Converting {job['name']}…"
                 try:
                     images = convert_pdf_to_images(job["path"], output, dpi=dpi, quality=quality,
-                                                   image_format=image_format, on_progress=update_progress)
+                                                   image_format=image_format, on_progress=update_progress,
+                                                   page_selection=job["page_selection"], should_cancel=self._cancel.is_set)
+                except ConversionCancelled as exc:
+                    with self._lock:
+                        item.update(status="cancelled", detail=str(exc),
+                                    output=str(exc.images[0].parent) if exc.images else "")
+                        image_count += len(exc.images)
+                    break
                 except Exception as exc:
                     with self._lock:
                         item.update(status="error", detail=str(exc))
@@ -241,12 +320,19 @@ class DocumentAPI:
                     self._state["progress"] = (index + 1) / len(jobs) * 100
         finally:
             with self._lock:
+                for item in self._files:
+                    if item["status"] in ("waiting", "cancelled"):
+                        item.update(status="cancelled", detail=item["detail"] if item["status"] == "cancelled" else "Cancelled · not started")
+                        cancelled_count += 1
                 self._state["running"] = False
-                self._state["message"] = f"Finished · {self._state['completed']} succeeded, {self._state['failed']} failed"
+                self._state["cancelling"] = False
+                stopped = cancelled_count > 0
+                self._state["message"] = f"{'Cancelled' if stopped else 'Finished'} · {self._state['completed']} succeeded, {self._state['failed']} failed"
                 self._state["result"] = {
                     "id": uuid4().hex, "completed": self._state["completed"],
                     "failed": self._state["failed"], "images": image_count, "output": output,
                     "image_format": image_format,
+                    "cancelled": cancelled_count,
                 }
 
     def open_output(self):
@@ -326,6 +412,7 @@ def run_desktop(report=lambda status, message: None):
     )
     api._window = window
     window.events.closing += api._can_close
+    window.events.loaded += lambda: api._bind_drop()
     report("loading", "Loading your document workspace…")
     webview.start(gui="edgechromium", storage_path=str(BASE_DIR / ".webview"),
                   icon=str(BASE_DIR / "ui" / "assets" / "docspace.ico"))

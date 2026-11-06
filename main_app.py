@@ -8,12 +8,13 @@ from threading import RLock
 
 from doc_app import DocumentAPI, build_html as document_html
 from heatmap_app import HeatmapAPI, build_html as heatmap_html
+from window_settings import WindowSettings
 
 BASE_DIR = Path(__file__).resolve().parent
 METHODS = {
     "documents": ("get_state", "ready", "choose_files", "choose_output", "remove_file",
                   "clear_files", "preview", "start_conversion", "update_settings",
-                  "open_output", "set_sidebar_expanded"),
+                  "open_output", "set_sidebar_expanded", "set_page_selection", "cancel_conversion"),
     "heatmap": ("get_settings", "defaults", "generate", "choose_output", "open_output"),
 }
 
@@ -61,6 +62,9 @@ class ManagementAPI:
         if self._heatmap_instance is not None:
             self._heatmap_instance._window = window
 
+    def _bind_drop(self):
+        self._documents._bind_drop()
+
     def _can_close(self):
         return self._documents._can_close() and (
             self._heatmap_instance is None or not self._heatmap_instance._busy.is_set())
@@ -71,6 +75,7 @@ def build_html():
     # native window and bridge. Both frames stay mounted to preserve current work.
     embedded_style = "<style>body>.rail{display:none!important}body{min-width:0!important}</style>"
     template = (BASE_DIR / "ui" / "management.html").read_text(encoding="utf-8")
+    template = template.replace("<!-- APP_LOGO -->", (BASE_DIR / "ui" / "assets" / "docspace.svg").read_text(encoding="utf-8"))
     for name, content in (("DOCUMENTS", document_html()), ("HEATMAP", heatmap_html())):
         template = template.replace(f"<!-- {name}_HTML -->", escape(content.replace("</head>", embedded_style + "</head>"), quote=True))
     return template.replace("/* BRIDGE_METHODS */", json.dumps(METHODS))
@@ -85,12 +90,20 @@ def run_desktop(report=lambda status, message: None):
 
     report("loading", "Preparing PDF and Heatmap workspaces…")
     api = ManagementAPI(on_ready=on_ready)
+    layout = WindowSettings(BASE_DIR / "workspace_settings.json")
     window = webview.create_window(
         "Docspace · Main Management", html=build_html(), js_api=api,
-        width=1280, height=820, min_size=(1080, 700), background_color="#f3f8fd", hidden=True,
+        **layout.options(webview.screens), min_size=(1080, 700), background_color="#f3f8fd", hidden=True,
     )
     api._attach(window)
-    window.events.closing += api._can_close
+    layout.bind(window)
+    def on_close():
+        if not api._can_close():
+            return False
+        layout.save()
+        return True
+    window.events.closing += on_close
+    window.events.loaded += api._bind_drop
     webview.start(gui="edgechromium", storage_path=str(BASE_DIR / ".webview"),
                   icon=str(BASE_DIR / "ui" / "assets" / "docspace.ico"))
 

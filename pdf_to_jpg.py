@@ -3,9 +3,37 @@
 import argparse
 from pathlib import Path
 import sys
+import re
 
 BASE_DIR = Path(__file__).resolve().parent
 IMAGE_FORMATS = ("jpg", "png", "webp")
+
+
+class ConversionCancelled(Exception):
+    """Cooperative stop; images already written remain available."""
+
+    def __init__(self, images):
+        self.images = list(images)
+        super().__init__(f"Cancelled · {len(images)} images saved")
+
+
+def parse_page_selection(selection, page_count):
+    """Return sorted, unique one-based pages; an empty string selects all."""
+    if not isinstance(selection, str):
+        raise ValueError("Pages must be text, for example 1-3, 5.")
+    if not selection.strip():
+        return list(range(1, page_count + 1))
+    pages = set()
+    for part in selection.split(","):
+        match = re.fullmatch(r"\s*([0-9]+)\s*(?:[-–]\s*([0-9]+)\s*)?", part)
+        if not match:
+            raise ValueError("Use page numbers or ranges, for example 1-3, 5.")
+        first = int(match[1])
+        last = int(match[2] or match[1])
+        if not 1 <= first <= last <= page_count:
+            raise ValueError(f"Pages must be between 1 and {page_count}, in ascending ranges.")
+        pages.update(range(first, last + 1))
+    return sorted(pages)
 
 
 def project_path(value):
@@ -13,7 +41,8 @@ def project_path(value):
     return (path if path.is_absolute() else BASE_DIR / path).resolve()
 
 
-def convert_pdf_to_images(pdf_path, output_dir=None, *, dpi=200, quality=95, image_format="jpg", on_progress=None):
+def convert_pdf_to_images(pdf_path, output_dir=None, *, dpi=200, quality=95, image_format="jpg", on_progress=None,
+                          page_selection="", should_cancel=None):
     """Return image paths, using a new folder for each conversion."""
     source = project_path(pdf_path)
     destination = project_path(output_dir if output_dir is not None else "output")
@@ -41,6 +70,9 @@ def convert_pdf_to_images(pdf_path, output_dir=None, *, dpi=200, quality=95, ima
             raise ValueError("This PDF requires a password; use an unlocked copy")
         if document.page_count == 0:
             raise ValueError("The PDF contains no pages")
+        selected_pages = parse_page_selection(page_selection, document.page_count)
+        if should_cancel and should_cancel():
+            raise ConversionCancelled(images)
         destination.mkdir(parents=True, exist_ok=True)
         # mkdir prevents overwriting files, including simultaneous conversions.
         folder = destination / source.stem
@@ -54,7 +86,10 @@ def convert_pdf_to_images(pdf_path, output_dir=None, *, dpi=200, quality=95, ima
                 suffix += 1
 
         try:
-            for number, page in enumerate(document, start=1):
+            for done, number in enumerate(selected_pages, start=1):
+                if should_cancel and should_cancel():
+                    raise ConversionCancelled(images)
+                page = document[number - 1]
                 # Bound memory use before attempting to render a very large page.
                 width = int(page.rect.width * dpi / 72) + 1
                 height = int(page.rect.height * dpi / 72) + 1
@@ -65,6 +100,8 @@ def convert_pdf_to_images(pdf_path, output_dir=None, *, dpi=200, quality=95, ima
                 pixmap = page.get_pixmap(
                     dpi=dpi, colorspace=pymupdf.csRGB, alpha=False,
                 )
+                if should_cancel and should_cancel():
+                    raise ConversionCancelled(images)
                 image_path = folder / f"page_{number:03d}.{image_format}"
                 if image_format == "webp":
                     from PIL import Image
@@ -77,7 +114,9 @@ def convert_pdf_to_images(pdf_path, output_dir=None, *, dpi=200, quality=95, ima
                 images.append(image_path)
                 del pixmap
                 if on_progress is not None:
-                    on_progress(number, document.page_count)
+                    on_progress(done, len(selected_pages))
+        except ConversionCancelled:
+            raise
         except Exception as exc:
             raise RuntimeError(
                 f"Conversion stopped after {len(images)} page(s). "
@@ -103,6 +142,7 @@ def main(argv=None):
     parser.add_argument("--dpi", type=int, default=200, help="Resolution: 36-600 (default: 200)")
     parser.add_argument("--quality", type=int, default=95, help="JPG/WebP quality: 1-100 (default: 95); PNG is lossless")
     parser.add_argument("--format", choices=IMAGE_FORMATS, default="jpg", help="Output format (default: jpg); PNG is lossless")
+    parser.add_argument("--pages", default="", help="Pages to export, e.g. 1-3,5 (default: all)")
     args = parser.parse_args(argv)
     if not 36 <= args.dpi <= 600:
         parser.error("--dpi must be between 36 and 600")
@@ -122,7 +162,8 @@ def main(argv=None):
     failures = 0
     for pdf in files:
         try:
-            images = convert_pdf_to_images(pdf, args.output, dpi=args.dpi, quality=args.quality, image_format=args.format)
+            images = convert_pdf_to_images(pdf, args.output, dpi=args.dpi, quality=args.quality, image_format=args.format,
+                                           page_selection=args.pages)
         except Exception as exc:
             print(f"ERROR [{pdf.name}]: {exc}", file=sys.stderr)
             failures += 1
