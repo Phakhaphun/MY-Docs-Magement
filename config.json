@@ -1,0 +1,21 @@
+{
+  "temperatures": [[89.15, 88.0, 88.0], [66.0, 81.48, 83.0]],
+  "area_width": 1.0,
+  "area_height": 1.0,
+  "area_unit": "relative",
+  "sensor_names": ["T1", "T2", "T3", "T4", "T5", "T6"],
+  "sensor_positions": [[0, 0], [0.5, 0], [1, 0], [0, 1], [0.5, 1], [1, 1]],
+  "grid_rows": 200,
+  "grid_cols": 300,
+  "color_min": 60.0,
+  "color_max": 90.0,
+  "dpi": 300,
+  "figure_width": 10,
+  "figure_height": 6,
+  "title": "Temperature Distribution Heatmap",
+  "x_axis_title": "X",
+  "y_axis_title": "Y",
+  "output_path": "output/temperature_heatmap.png",
+  "show_sensor_labels": true,
+  "show_sensor_markers": true
+}

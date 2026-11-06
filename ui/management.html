@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Docspace · Main Management</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;display:flex;height:100vh;overflow:hidden;font:14px "Segoe UI",Tahoma,sans-serif;color:#18324d;background:#f3f8fd}
+    aside{width:190px;flex-shrink:0;background:white;border-right:1px solid #dee8f2;display:flex;flex-direction:column;padding:26px 14px;gap:10px}
+    .brand{font-size:23px;font-weight:650;letter-spacing:-.5px;padding:0 10px}.subtitle{font-size:11px;color:#647c94;padding:0 10px;margin-bottom:24px}
+    nav{display:flex;flex-direction:column;gap:8px}button{font:inherit;cursor:pointer;border:1px solid transparent;border-radius:10px;background:transparent;color:#647c94;text-align:left;padding:13px 12px}
+    button[aria-selected=true]{background:#e7f2ff;border-color:#cfe2fb;color:#2563c6;font-weight:600}button:hover{background:#f3f8fd}button:focus-visible{outline:2px solid #2563c6;outline-offset:2px}
+    .local{margin-top:auto;font-size:10px;color:#647c94;padding:10px;line-height:1.8}.dot{color:#25866b}main{flex:1;min-width:0;position:relative}iframe{border:0;width:100%;height:100%;display:block;background:#f3f8fd}iframe[hidden]{display:none}
+    #connection{position:absolute;bottom:8px;left:20px;color:#ba3544;font-size:12px;background:#fff;padding:6px 10px;border-radius:6px}#connection[hidden]{display:none}
+    @media(max-width:1150px){aside{width:155px;padding:24px 8px}.brand{font-size:21px}button{padding:12px 8px;font-size:12px}}
+  </style>
+</head>
+<body>
+  <aside aria-label="Main navigation">
+    <div class="brand">Docspace</div><div class="subtitle">Main Management</div>
+    <nav role="tablist" aria-label="Workspaces" aria-orientation="vertical">
+      <button id="documentsTab" role="tab" aria-selected="true" aria-controls="documents" data-workspace="documents">▧ &nbsp; PDF to Image</button>
+      <button id="heatmapTab" role="tab" aria-selected="false" aria-controls="heatmap" data-workspace="heatmap" tabindex="-1">♨ &nbsp; Heatmap</button>
+    </nav>
+    <div class="local"><span class="dot">●</span> Works offline<br>Files stay on this computer</div>
+  </aside>
+  <main>
+    <iframe id="documents" role="tabpanel" aria-labelledby="documentsTab" title="PDF to Image" srcdoc="<!-- DOCUMENTS_HTML -->"></iframe>
+    <iframe id="heatmap" role="tabpanel" aria-labelledby="heatmapTab" title="Temperature Heatmap" srcdoc="<!-- HEATMAP_HTML -->" hidden></iframe>
+    <div id="connection" role="status">Connecting to your workspace…</div>
+  </main>
+  <script>
+    const methods = /* BRIDGE_METHODS */;
+    const connected = new Set();
+    function connectFrame(name) {
+      const frame = document.getElementById(name), child = frame.contentWindow;
+      if (frame.hidden || !window.pywebview?.api || child.document.readyState !== "complete" || connected.has(name)) return;
+      const api = {};
+      for (const method of methods[name]) api[method] = (...args) => window.pywebview.api.invoke(name, method, args);
+      if (name === "documents") api.ready = () => window.pywebview.api.invoke(name, "ready", []).then(result => {
+        if (!result.error) document.getElementById("connection").hidden = true;
+        return result;
+      });
+      child.pywebview = {api};
+      connected.add(name);
+      child.dispatchEvent(new Event("pywebviewready"));
+    }
+    for (const name of Object.keys(methods)) {
+      document.getElementById(name).addEventListener("load", () => {connected.delete(name); connectFrame(name);});
+    }
+    window.addEventListener("pywebviewready", () => Object.keys(methods).forEach(connectFrame));
+    function selectWorkspace(name) {
+      for (const button of document.querySelectorAll("[data-workspace]")) {
+        const selected = button.dataset.workspace === name;
+        button.setAttribute("aria-selected", String(selected));
+        button.tabIndex = selected ? 0 : -1;
+        document.getElementById(button.dataset.workspace).hidden = !selected;
+      }
+      connectFrame(name);
+      document.getElementById(name).contentWindow.dispatchEvent(new Event("resize"));
+    }
+    for (const button of document.querySelectorAll("[data-workspace]")) {
+      button.addEventListener("click", () => selectWorkspace(button.dataset.workspace));
+      button.addEventListener("keydown", event => {
+        if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+          event.preventDefault();
+          const name = event.key === "Home" ? "documents" : event.key === "End" ? "heatmap" : button.dataset.workspace === "documents" ? "heatmap" : "documents";
+          selectWorkspace(name); document.querySelector(`[data-workspace="${name}"]`).focus();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

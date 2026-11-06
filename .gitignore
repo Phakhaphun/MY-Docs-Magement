@@ -1,0 +1,14 @@
+.venv/
+.runtime-tmp/
+.webview/
+__pycache__/
+*.pyc
+output/
+input/
+ui_settings.json
+heatmap_settings.json
+workspace_settings.json
+test_workspace_*/
+test_settings_*/
+test_pdf_*/
+test_ui_*/

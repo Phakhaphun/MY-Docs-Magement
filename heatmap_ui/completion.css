@@ -1,0 +1,8 @@
+#exportDialog{border:1px solid var(--line);border-radius:18px;background:#fff;color:#18324d;padding:28px;width:440px;max-width:calc(100vw - 40px);box-shadow:0 18px 70px #18324d30}
+#exportDialog::backdrop{background:#18324d50}
+.completion-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#e6f7ef;color:#25866b;font-size:25px;margin-bottom:17px}
+#exportDialog h2{font-size:21px;font-weight:650;margin:0 0 8px}
+#exportDialogDescription{color:var(--muted);font-size:12px;margin:0 0 18px}
+.saved-path{background:#f5f9fd;border:1px solid var(--line);border-radius:8px;padding:12px;font-size:11px;line-height:1.7;overflow-wrap:anywhere;max-height:140px;overflow:auto;user-select:text}
+#exportDialogMessage{color:#ba3544;font-size:11px;line-height:1.6;margin:12px 0 0}
+.completion-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'">
+  <title>Docspace</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,APP_FAVICON">
+  <style>/* APP_STYLES */</style>
+</head>
+<body>
+  <svg class="svg-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  </svg>
+  <aside class="rail" aria-label="Workspace tools">
+    <div class="brand-row"><div class="brand" title="Docspace · Document Management" role="img" aria-label="Docspace document management logo"><!-- APP_LOGO --></div><span class="brand-name nav-label">Docspace</span></div>
+    <div class="rail-line"></div>
+    <button id="navToggle" class="nav-toggle" aria-label="Expand menu" title="Expand menu" aria-controls="toolNav" aria-expanded="false"><span class="nav-chevron" aria-hidden="true">›</span><span class="nav-label">Collapse menu</span></button>
+    <nav id="toolNav" class="tool-nav" aria-label="Document tools"><button class="rail-tool active" title="PDF to Image" aria-label="PDF to Image" aria-current="page"><svg><use href="#i-image"/></svg><span class="nav-label">PDF to Image</span></button></nav>
+    <div class="rail-bottom" title="All documents stay on this computer"><span class="online-dot"></span><span>LOCAL</span></div>
+  </aside>
+  <main>
+    <header class="page-header">
+      <div><div class="breadcrumb">Docspace <span>/</span> Conversion tools</div><h1>PDF to Image<span id="formatBadge" class="format-badge">JPG</span></h1><p>Your documents, ready for a new format.</p></div>
+      <span class="offline"><span class="online-dot"></span> Works offline</span>
+    </header>
+
+    <section class="workspace" aria-label="PDF workspace">
+      <section class="queue-panel">
+        <div class="panel-heading"><h2>Documents <span id="fileCount" class="count">0</span></h2><button id="clearBtn" class="text-button">Clear all</button></div>
+        <button id="addBtn" class="add-button"><svg><use href="#i-plus"/></svg> Add PDFs <span>Ctrl + O</span></button>
+        <div class="input-location" id="inputPath" title="Last input folder">Last input folder</div>
+        <div id="fileList" class="file-list" aria-label="Selected PDF files"></div>
+        <div id="queueEmpty" class="queue-empty"><div class="empty-icon"><svg><use href="#i-file"/></svg></div><strong>A fresh start</strong><p>Add one or more PDFs.<br>Choose a file to preview it here.</p><button id="emptyAddBtn" class="text-button accent">Choose files <span>↗</span></button></div>
+        <div class="queue-note"><span class="small-dot"></span> Original files stay untouched</div>
+      </section>
+
+      <section class="preview-panel" aria-label="PDF preview">
+        <div class="preview-toolbar"><div class="preview-label"><span class="eyebrow">PREVIEW</span><span id="previewName">No document selected</span></div><div class="zoom-controls"><button id="zoomOut" class="icon-button" title="Zoom out" aria-label="Zoom out">−</button><button id="fitBtn" class="fit-button" title="Fit page">Fit</button><button id="zoomIn" class="icon-button" title="Zoom in" aria-label="Zoom in">+</button></div></div>
+        <div id="previewStage" class="preview-stage" title="Pinch with two fingers or use Ctrl + mouse wheel to zoom. Scroll to pan.">
+          <div id="previewEmpty" class="preview-empty"><div class="preview-illustration"><svg><use href="#i-image"/></svg></div><h3>A little preview.<br>A lot more confidence.</h3><p>Select a PDF to see its pages<br>before you hit convert.</p></div>
+          <div id="previewMessage" class="preview-message" role="status" hidden></div>
+          <img id="previewImage" alt="Selected PDF page preview" draggable="false" hidden>
+        </div>
+        <div class="page-controls"><span id="previewHint">Page preview</span><div class="pager"><button id="prevPage" class="icon-button" title="Previous page" aria-label="Previous page">‹</button><span id="pageLabel">— / —</span><button id="nextPage" class="icon-button" title="Next page" aria-label="Next page">›</button></div><span id="previewFormat" class="preview-tag">PDF → JPG</span></div>
+      </section>
+    </section>
+
+    <section class="export-settings" aria-label="Export settings">
+      <div class="settings-heading"><h2>Export settings</h2><span>One image for every page</span></div>
+      <div class="settings-row">
+        <label class="format-field">Format <select id="imageFormat"><option value="jpg">JPG</option><option value="png">PNG (lossless)</option><option value="webp">WebP</option></select></label>
+        <label class="number-field">Resolution <span class="input-wrap"><input id="dpi" type="number" min="36" max="600" step="1" value="200"><span>DPI</span></span></label>
+        <label class="number-field" id="qualityField">Quality <span class="input-wrap"><input id="quality" type="number" min="1" max="100" step="1" value="95"><span>%</span></span></label>
+        <div class="output-field"><label for="outputPath">Save to</label><div class="folder-picker"><svg><use href="#i-folder"/></svg><input id="outputPath" readonly aria-label="Output folder"><button id="browseBtn" title="Choose output folder">Browse</button></div></div>
+      </div>
+    </section>
+
+    <footer><div class="progress-area"><div class="progress-caption"><span id="statusText" role="status">Connecting to your workspace…</span><span id="progressLabel"></span></div><div class="progress-track" role="progressbar" aria-label="Conversion progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div id="progressBar"></div></div></div><button id="convertBtn" class="primary-button" disabled>Convert to JPG <svg><use href="#i-arrow"/></svg></button></footer>
+  </main>
+  <div id="toast" class="toast" role="alert" hidden></div>
+  <dialog id="completionDialog" class="completion-dialog" aria-labelledby="completionTitle" aria-describedby="completionSummary">
+    <div id="completionIcon" class="completion-icon" aria-hidden="true">✓</div>
+    <h2 id="completionTitle">Conversion complete</h2>
+    <p id="completionSummary"></p>
+    <div class="completion-stats"><div><strong id="resultImages">0</strong><span>Images saved</span></div><div><strong id="resultCompleted">0</strong><span>Files succeeded</span></div><div><strong id="resultFailed">0</strong><span>Files failed</span></div></div>
+    <p id="completionNote"></p>
+    <div id="completionPath" class="completion-path"></div>
+    <div class="completion-actions"><button id="completionDone" class="secondary-button">Done</button><button id="completionOpen" class="primary-button">Open output folder <svg><use href="#i-folder"/></svg></button></div>
+  </dialog>
+  <script>/* APP_SCRIPT */</script>
+</body>
+</html>

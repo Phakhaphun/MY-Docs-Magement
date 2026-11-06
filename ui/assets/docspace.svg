@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="docspace-bg" x1="8" y1="4" x2="56" y2="62" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#389AF4"/>
+      <stop offset="1" stop-color="#154BB0"/>
+    </linearGradient>
+    <linearGradient id="docspace-folder" x1="17" y1="35" x2="46" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D8F1FF"/>
+      <stop offset="1" stop-color="#8AD2FF"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#docspace-bg)"/>
+  <rect x="16" y="16" width="25" height="32" rx="3" transform="rotate(-9 16 16)" fill="#9DD9FF" fill-opacity=".8"/>
+  <path d="M25 12H39L48 21V44H25C23.34 44 22 42.66 22 41V15C22 13.34 23.34 12 25 12Z" fill="#F4FBFF"/>
+  <path d="M39 12V18C39 19.66 40.34 21 42 21H48" fill="#B9DEFF"/>
+  <path d="M28 26H41M28 31H37" stroke="#548FD3" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M13 35C13 33.34 14.34 32 16 32H25L29 36H48C49.66 36 51 37.34 51 39V49C51 51.21 49.21 53 47 53H17C14.79 53 13 51.21 13 49V35Z" fill="url(#docspace-folder)"/>
+  <path d="M22 44H40" stroke="#2678CA" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
