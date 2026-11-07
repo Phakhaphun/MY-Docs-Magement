@@ -169,14 +169,14 @@ class DocumentAPI:
         if paths:
             self._add_files(paths)
 
-    def _bind_drop(self, selector=None):
+    def _bind_drop(self, selector=None, on_drop=None):
         """Use native pywebview paths rather than browser file-name placeholders."""
         from webview.dom import DOMEventHandler
         target = self._window.dom.get_element(selector) if selector else self._window.dom.document
         if target is None:
             return
         target.events.dragover += DOMEventHandler(lambda event: None, prevent_default=True)
-        target.events.drop += DOMEventHandler(self._on_drop, prevent_default=True)
+        target.events.drop += DOMEventHandler(on_drop or self._on_drop, prevent_default=True)
         self._drop_target = target
 
     def choose_files(self):

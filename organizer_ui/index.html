@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'"><title>Organize PDF · Docspace</title><style>/* APP_STYLES */</style></head>
+<body>
+<svg class="svg-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+ <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+ <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 5h12M9 12h12M9 19h12M3 5h1M3 12h1M3 19h1"/></symbol>
+ <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></symbol>
+ <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></symbol>
+ <symbol id="i-undo" viewBox="0 0 24 24"><path d="m9 4-6 6 6 6M3 10h11a7 7 0 0 1 7 7v3"/></symbol>
+ <symbol id="i-zoom" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 10h6M10 7v6"/></symbol>
+ <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+ <symbol id="i-left" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7"/></symbol>
+ <symbol id="i-right" viewBox="0 0 24 24"><path d="m10 5 7 7-7 7"/></symbol>
+</svg>
+<header><div><div class="eyebrow">DOCSPACE / ORGANIZE</div><h1>Organize PDF</h1><p>Every page in view. Arrange it your way.</p></div><button id="add" class="secondary"><svg><use href="#i-plus"/></svg>Add PDFs</button></header>
+<div class="workspace">
+ <section class="canvas" aria-label="Arranged pages">
+  <div class="canvas-top"><div><strong id="pageCount">0 pages</strong><span id="fileCount">0 documents</span></div><div class="view-switch" role="group" aria-label="Page layout"><button id="gridView" class="icon active" aria-label="Grid view" aria-pressed="true"><svg><use href="#i-grid"/></svg></button><button id="listView" class="icon" aria-label="List view" aria-pressed="false"><svg><use href="#i-list"/></svg></button></div></div>
+  <div id="fileFilters" class="file-filters" aria-label="Filter by document"></div>
+  <div class="selection-bar"><button id="selectAll" class="text">Select all</button><span id="selectionCount">Select pages to rotate, delete, or move</span><div class="bulk-actions"><button id="undo" class="icon" title="Undo (Ctrl+Z)" aria-label="Undo"><svg><use href="#i-undo"/></svg></button><button id="rotateSelected" class="icon" title="Rotate or flip selected pages" aria-label="Rotate or flip selected pages"><svg><use href="#i-rotate"/></svg></button><button id="deleteSelected" class="icon danger-text" title="Delete selected pages" aria-label="Delete selected pages"><svg><use href="#i-trash"/></svg></button></div></div>
+  <div id="pageScroll" class="page-scroll"><div id="pages" class="page-grid" aria-label="PDF page thumbnails"></div><div id="empty" class="empty"><div class="empty-stack"><svg><use href="#i-grid"/></svg></div><h2>Your pages, all in one place</h2><p>Add PDFs to see every page.<br>Drag to reorder, rotate, or remove pages.</p><button id="emptyAdd" class="secondary">Choose PDF files</button></div></div>
+  <div class="canvas-foot"><span>Drag pages to reorder · Shift + click to select a range</span><button id="clear" class="text">Clear all</button></div>
+ </section>
+ <aside class="export-panel"><div><div class="eyebrow">EXPORT</div><h2>Save document</h2><p>Review your page order before saving.</p></div>
+  <label>Output mode<select id="mode"><option value="merge">Merge into one PDF</option><option value="extract">One PDF per source</option><option value="split">One PDF per page</option></select></label>
+  <p id="modeHint" class="hint"></p>
+  <label>Pages to export<select id="scope"><option value="all">All arranged pages</option><option value="selected">Selected pages only</option></select></label>
+  <div class="export-summary"><strong id="summary">0 pages</strong><span>In your arranged order</span></div>
+  <div class="destination"><label for="output">Save to</label><input id="output" readonly><button id="browse" class="text">Change folder</button></div>
+  <div class="export-bottom"><div id="status" role="status">Connecting…</div><div class="track" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="progress"></div></div><button id="cancel" class="danger" hidden>Cancel</button><button id="export" class="primary" disabled>Save PDF</button><div class="local-note"><i></i>Original files stay unchanged · Works offline</div></div>
+ </aside>
+</div>
+<div id="toast" role="alert" hidden></div>
+<dialog id="previewDialog" aria-label="PDF page preview"><div class="dialog-heading"><h2 id="previewTitle">PDF page preview</h2><button id="closePreview" class="secondary">Close</button></div><div class="preview-tools" aria-label="Preview zoom"><button id="previewZoomOut" class="secondary" aria-label="Zoom out">−</button><span id="previewZoomLabel">100%</span><button id="previewZoomIn" class="secondary" aria-label="Zoom in">+</button><button id="previewFit" class="secondary">Fit page</button><button id="previewFitWidth" class="secondary">Fit width</button><button id="previewTransform" class="secondary">Rotate / flip</button></div><div id="previewStage"><span id="previewMessage">Loading…</span><div id="previewCanvas" hidden><img id="previewImage" alt="PDF page preview" draggable="false" hidden></div></div><p class="preview-help">Ctrl + mouse wheel or pinch to zoom this preview · Scroll to pan</p></dialog>
+<dialog id="transformDialog" aria-labelledby="transformTitle"><div class="dialog-heading"><h2 id="transformTitle">Rotate / flip page</h2><button id="closeTransform" class="text">Close</button></div><div class="transform-options"><button class="secondary" data-transform="left">Rotate left 90°</button><button class="secondary" data-transform="right">Rotate right 90°</button><button class="secondary" data-transform="half">Rotate 180°</button><button class="secondary" data-transform="reset">Reset transforms</button><button class="secondary" data-transform="horizontal">Flip left to right<br><small>Horizontal</small></button><button class="secondary" data-transform="vertical">Flip top to bottom<br><small>Vertical</small></button></div></dialog>
+<dialog id="resultDialog" aria-labelledby="resultTitle"><div class="result-icon">✓</div><h2 id="resultTitle">PDFs saved</h2><p id="resultSummary"></p><div id="resultPaths"></div><div class="actions"><button id="done" class="secondary">Done</button><button id="openOutput" class="primary">Open output folder</button></div></dialog>
+<script>/* APP_SCRIPT */</script></body></html>

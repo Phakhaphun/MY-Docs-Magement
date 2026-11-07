@@ -7,7 +7,7 @@ from pathlib import Path
 from pdf_to_jpg import ConversionCancelled
 
 
-def _render(connection, cancelled, source, output, options):
+def _render(connection, cancelled, operation, source, output, options):
     try:
         # Keep interactive desktop applications ahead of a background conversion.
         if os.name == "nt":
@@ -25,8 +25,12 @@ def _render(connection, cancelled, source, output, options):
             if connection.recv() != "continue":
                 cancelled.set()
 
-        images = convert_pdf_to_images(source, output, **options,
-                                       on_progress=progress, should_cancel=cancelled.is_set)
+        if operation == "organize":
+            from organize_pdf import organize_pdfs
+            images = organize_pdfs(source, output, **options, on_progress=progress, should_cancel=cancelled.is_set)
+        else:
+            images = convert_pdf_to_images(source, output, **options,
+                                           on_progress=progress, should_cancel=cancelled.is_set)
         connection.send(("done", [str(path) for path in images]))
     except ConversionCancelled as exc:
         connection.send(("cancelled", [str(path) for path in exc.images]))
@@ -38,10 +42,18 @@ def _render(connection, cancelled, source, output, options):
 
 def convert_in_process(source, output, *, on_progress=None, should_cancel=None, **options):
     """Keep the converter's API while isolating rendering, encoding and the GIL."""
+    return _run_in_process("convert", str(source), output, options, on_progress, should_cancel)
+
+
+def organize_in_process(jobs, output, *, mode, on_progress=None, should_cancel=None):
+    return _run_in_process("organize", jobs, output, {"mode": mode}, on_progress, should_cancel)
+
+
+def _run_in_process(operation, source, output, options, on_progress, should_cancel):
     context = multiprocessing.get_context("spawn")
     parent, child = context.Pipe()
     cancelled = context.Event()
-    process = context.Process(target=_render, args=(child, cancelled, str(source), str(output), options),
+    process = context.Process(target=_render, args=(child, cancelled, operation, source, str(output), options),
                               name="Docspace PDF renderer", daemon=True)
     started = False
     try:

@@ -21,24 +21,32 @@
   <aside aria-label="Main navigation">
     <div class="brand"><!-- APP_LOGO --><span>Docspace</span></div><div class="subtitle">Main Management</div>
     <nav role="tablist" aria-label="Workspaces" aria-orientation="vertical">
+      <!-- Workspaces retain their own file queues while switching tabs. -->
       <button id="documentsTab" role="tab" aria-selected="true" aria-controls="documents" data-workspace="documents"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6"/><path d="m7 17 3-3 2 2 3-4 3 5"/></svg><span>PDF to Image</span></button>
       <button id="heatmapTab" role="tab" aria-selected="false" aria-controls="heatmap" data-workspace="heatmap" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0ZM12 9v9m5-12h3m-3 4h2"/></svg><span>Heatmap</span></button>
+      <button id="organizerTab" role="tab" aria-selected="false" aria-controls="organizer" data-workspace="organizer" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="12" height="15" rx="2"/><path d="M8 7h3M8 11h3M9 21h10a2 2 0 0 0 2-2V8M17 3v9m-3-3 3 3 3-3"/></svg><span>Organize PDF</span></button>
     </nav>
     <div class="local"><span class="dot">●</span> Works offline<br>Files stay on this computer</div>
   </aside>
   <main>
     <iframe id="documents" role="tabpanel" aria-labelledby="documentsTab" title="PDF to Image" srcdoc="<!-- DOCUMENTS_HTML -->"></iframe>
     <iframe id="heatmap" role="tabpanel" aria-labelledby="heatmapTab" title="Temperature Heatmap" srcdoc="<!-- HEATMAP_HTML -->" hidden></iframe>
+    <iframe id="organizer" role="tabpanel" aria-labelledby="organizerTab" title="Organize PDF" srcdoc="<!-- ORGANIZER_HTML -->" hidden></iframe>
     <div id="connection" role="status">Connecting to your workspace…</div>
   </main>
   <script>
     const methods = /* BRIDGE_METHODS */;
     const connected = new Set();
+    function preventAppZoom(target) {
+      target.addEventListener('wheel', event => {if (event.ctrlKey || event.metaKey) event.preventDefault();}, {passive:false});
+      target.addEventListener('keydown', event => {if ((event.ctrlKey || event.metaKey) && ['+', '=', '-', '0'].includes(event.key)) event.preventDefault();});
+    }
+    preventAppZoom(document);
     function forwardPDFDrop(dataTransfer) {
       document.dispatchEvent(new DragEvent('drop', {dataTransfer, bubbles:true, cancelable:true}));
     }
     document.addEventListener('dragover', event => event.preventDefault());
-    document.addEventListener('drop', event => {event.preventDefault(); selectWorkspace('documents');});
+    document.addEventListener('drop', event => {event.preventDefault(); selectWorkspace(document.getElementById('organizer').hidden ? 'documents' : 'organizer');});
     function connectFrame(name) {
       const frame = document.getElementById(name), child = frame.contentWindow;
       if (frame.hidden || !window.pywebview?.api || child.document.readyState !== "complete" || connected.has(name)) return;
@@ -49,6 +57,7 @@
         return result;
       });
       child.pywebview = {api};
+      preventAppZoom(child.document);
       connected.add(name);
       child.dispatchEvent(new Event("pywebviewready"));
     }
@@ -71,7 +80,9 @@
       button.addEventListener("keydown", event => {
         if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
           event.preventDefault();
-          const name = event.key === "Home" ? "documents" : event.key === "End" ? "heatmap" : button.dataset.workspace === "documents" ? "heatmap" : "documents";
+          const names = [...document.querySelectorAll('[data-workspace]')].map(item => item.dataset.workspace);
+          const index = names.indexOf(button.dataset.workspace);
+          const name = event.key === "Home" ? names[0] : event.key === "End" ? names.at(-1) : names[(index + (event.key === "ArrowDown" ? 1 : names.length - 1)) % names.length];
           selectWorkspace(name); document.querySelector(`[data-workspace="${name}"]`).focus();
         }
       });
