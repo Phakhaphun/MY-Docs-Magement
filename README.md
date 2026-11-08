@@ -128,6 +128,8 @@ python -m venv .venv
 
 ภาพย่อเป็น **Live paper preview** แสดงสัดส่วนกระดาษจริงและเส้นประระยะขอบ เปลี่ยนตามขนาด/แนว/ระยะขอบ/การหมุน แสดงขนาด mm ใต้แต่ละหน้า มี **Sort images** สำหรับเรียงชื่อ A–Z, Z–A แบบ natural sort หรือกลับลำดับ ช่อง Change folder แยกจากส่วนตั้งค่าที่เลื่อนได้เพื่อให้เห็นเสมอในหน้าต่างเล็ก
 
+ระหว่างสร้าง PDF แถบความคืบหน้าขยายเต็มพื้นที่ใต้ข้อความสถานะด้านล่าง โดยปุ่ม Cancel/Create PDF อยู่ด้านขวาและกดได้ตามเดิม
+
 แนวทาง UI ศึกษาจาก [iLovePDF](https://www.ilovepdf.com/jpg_to_pdf), [PDF24](https://tools.pdf24.org/en/images-to-pdf) และ [Sejda](https://www.sejda.com/jpg-to-pdf) แล้วปรับเข้ากับแอป local ภาษาอังกฤษ ขนาดกระดาษอ้างอิง [OpenJFX Paper](https://openjfx.io/javadoc/23/javafx.graphics/javafx/print/Paper.html) และ [Hohner paper sizes](https://www.hohner-postpress.com/us/media-library/paper-conversion-sizes/) โดยแยก ISO B/JIS B และระบุขนาด Folio ชัดเจน
 
 Original size ใช้ข้อมูล DPI ในรูปเมื่ออยู่ในช่วง 36–1200 DPI หรือใช้ 96 DPI เมื่อไม่มี/ไม่ถูกต้อง และเพิ่มระยะขอบรอบขนาดภาพนั้น หน้า PDF ที่ใหญ่เกิน 200 นิ้วจะให้เลือกขนาดเล็กลง รองรับภาพไม่เกิน 50 ล้านพิกเซลต่อภาพ มีการปรับทิศทาง EXIF จากกล้องก่อนแสดงภาพ/สร้าง PDF และรักษาภาพโปร่งใสให้แสดงบนพื้นกระดาษขาว
