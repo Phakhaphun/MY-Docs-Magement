@@ -58,7 +58,7 @@
         <label class="format-field">Format <select id="imageFormat"><option value="jpg">JPG</option><option value="png">PNG (lossless)</option><option value="webp">WebP</option></select></label>
         <label class="number-field">Resolution <span class="input-wrap"><input id="dpi" type="number" min="36" max="600" step="1" value="200"><span>DPI</span></span></label>
         <label class="number-field" id="qualityField">Quality <span class="input-wrap"><input id="quality" type="number" min="1" max="100" step="1" value="95"><span>%</span></span></label>
-        <div class="output-field"><label for="outputPath">Save to</label><div class="folder-picker"><svg><use href="#i-folder"/></svg><input id="outputPath" readonly aria-label="Output folder"><button id="browseBtn" title="Choose output folder">Browse</button></div></div>
+        <div class="output-field"><!-- OUTPUT_PICKER --></div>
       </div>
     </section>
 

@@ -5,6 +5,8 @@
   "area_unit": "relative",
   "sensor_names": ["T1", "T2", "T3", "T4", "T5", "T6"],
   "sensor_positions": [[0, 0], [0.5, 0], [1, 0], [0, 1], [0.5, 1], [1, 1]],
+  "estimation_method": "idw",
+  "idw_power": 2.0,
   "grid_rows": 200,
   "grid_cols": 300,
   "color_min": 60.0,

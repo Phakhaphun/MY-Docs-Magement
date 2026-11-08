@@ -9,6 +9,8 @@ from pdf_to_jpg import ConversionCancelled
 
 def _render(connection, cancelled, operation, source, output, options):
     try:
+        if operation == "ocr":
+            os.environ["OMP_THREAD_LIMIT"] = "1"
         # Keep interactive desktop applications ahead of a background conversion.
         if os.name == "nt":
             import ctypes
@@ -25,7 +27,13 @@ def _render(connection, cancelled, operation, source, output, options):
             if connection.recv() != "continue":
                 cancelled.set()
 
-        if operation == "organize":
+        if operation == "ocr":
+            from ocr_pdf import ocr_pdf
+            images = ocr_pdf(source, output, **options, on_progress=progress, should_cancel=cancelled.is_set)
+        elif operation == "compress":
+            from compress_pdf import compress_pdf
+            images = compress_pdf(source, output, **options, on_progress=progress, should_cancel=cancelled.is_set)
+        elif operation == "organize":
             from organize_pdf import organize_pdfs
             images = organize_pdfs(source, output, **options, on_progress=progress, should_cancel=cancelled.is_set)
         else:
@@ -47,6 +55,14 @@ def convert_in_process(source, output, *, on_progress=None, should_cancel=None, 
 
 def organize_in_process(jobs, output, *, mode, on_progress=None, should_cancel=None):
     return _run_in_process("organize", jobs, output, {"mode": mode}, on_progress, should_cancel)
+
+
+def compress_in_process(source, output, *, preset, on_progress=None, should_cancel=None):
+    return _run_in_process("compress", str(source), output, {"preset": preset}, on_progress, should_cancel)
+
+
+def ocr_in_process(source, output, *, languages, profile, on_progress=None, should_cancel=None):
+    return _run_in_process("ocr", str(source), output, {"languages": languages, "profile": profile}, on_progress, should_cancel)
 
 
 def _run_in_process(operation, source, output, options, on_progress, should_cancel):

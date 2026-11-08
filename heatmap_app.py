@@ -51,6 +51,7 @@ class HeatmapAPI:
                 values = sum(settings["temperatures"], [])
                 result.update(minimum=min(values), maximum=max(values), mean=sum(values) / 6,
                               spread=max(values) - min(values), method=method_name(settings))
+                result["estimated"] = settings["estimation_method"] == "idw"
                 if export:
                     image = render_png(settings)
                     path = output_path(settings)
@@ -101,12 +102,14 @@ class HeatmapAPI:
 
 def build_html() -> str:
     """Bundle local assets for offline desktop use with no HTTP server."""
+    from ui_components import bundle_output_picker
     directory = BASE_DIR / "heatmap_ui"
-    return (directory / "index.html").read_text(encoding="utf-8").replace(
+    html = (directory / "index.html").read_text(encoding="utf-8").replace(
         "/* APP_STYLES */", (directory / "styles.css").read_text(encoding="utf-8")
         + "\n" + (directory / "completion.css").read_text(encoding="utf-8")
         + "\n" + (directory / "geometry.css").read_text(encoding="utf-8")
     ).replace("/* APP_SCRIPT */", (directory / "app.js").read_text(encoding="utf-8"))
+    return bundle_output_picker(html, path_id="output_path", button_id="browse", label="Save PNG to", editable=True)
 
 
 def main():

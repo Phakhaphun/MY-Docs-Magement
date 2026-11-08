@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from pdf_to_jpg import ConversionCancelled, parse_page_selection
+from export_folders import create_export_folder
 
 
 def transform_page(page, rotation, flips):
@@ -73,15 +74,11 @@ def organize_pdfs(jobs, output, *, mode="merge", on_progress=None, should_cancel
             raise ConversionCancelled(saved)
     check_cancel()
     root = Path(output)
-    root.mkdir(parents=True, exist_ok=True)
-    index = 1
-    while True:
-        folder = root / ("organized" if index == 1 else f"organized_{index}")
-        try:
-            folder.mkdir()
-            break
-        except FileExistsError:
-            index += 1
+    sources = list(dict.fromkeys(source.resolve() for source, _, _, _ in validated))
+    folder = root
+    source_folders = {}
+    if mode == "merge":
+        folder = create_export_folder(root,sources[0],"merged",additional_sources=len(sources)-1)
     total = sum(len(pages) for _, pages, _, _ in validated)
     done = 0
 
@@ -100,6 +97,11 @@ def organize_pdfs(jobs, output, *, mode="merge", on_progress=None, should_cancel
     try:
         for file_index, (source, pages, rotations, flips) in enumerate(validated, 1):
             check_cancel()
+            if mode != "merge":
+                key = source.resolve()
+                if key not in source_folders:
+                    source_folders[key] = create_export_folder(root,source,"split" if mode == "split" else "extracted")
+                folder = source_folders[key]
             with pymupdf.open(source) as document, pymupdf.open() as extracted:
                 if mode == "split":
                     for number, rotation, reflection in zip(pages, rotations, flips):

@@ -10,6 +10,7 @@ from uuid import uuid4
 from pdf_to_jpg import BASE_DIR, IMAGE_FORMATS, ConversionCancelled, parse_page_selection
 from pdf_worker import convert_in_process as convert_pdf_to_images
 from ui_settings import SETTINGS_PATH, load_settings, save_settings
+from ui_components import bundle_output_picker
 
 
 class DocumentAPI:
@@ -356,11 +357,12 @@ class DocumentAPI:
 def build_html():
     assets = BASE_DIR / "ui"
     logo = (assets / "assets" / "docspace.svg").read_text(encoding="utf-8")
-    return (assets / "index.html").read_text(encoding="utf-8").replace(
+    html = (assets / "index.html").read_text(encoding="utf-8").replace(
         "/* APP_STYLES */", (assets / "styles.css").read_text(encoding="utf-8"),
     ).replace("/* APP_SCRIPT */", (assets / "app.js").read_text(encoding="utf-8")).replace(
         "<!-- APP_LOGO -->", logo,
     ).replace("APP_FAVICON", base64.b64encode(logo.encode("utf-8")).decode("ascii"))
+    return bundle_output_picker(html, path_id="outputPath", button_id="browseBtn")
 
 
 def main():

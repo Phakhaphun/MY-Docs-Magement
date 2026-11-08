@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Compress PDF</title><style>/* APP_STYLES */</style></head>
+<body>
+  <header><div><p class="eyebrow">DOCUMENT TOOLS</p><h1>Compress PDF</h1><p>Smaller files. Ready to share.</p></div><button id="addFiles" class="primary">+ Add PDFs</button></header>
+  <main>
+    <section class="settings" aria-label="Compression settings">
+      <h2>Compression level</h2>
+      <div class="presets" role="radiogroup" aria-label="Compression level">
+        <label><input type="radio" name="preset" value="lossless"><span><strong>Lossless</strong><small>Keep original image quality</small></span></label>
+        <label><input type="radio" name="preset" value="balanced" checked><span><strong>Balanced <em>Recommended</em></strong><small>Good image quality · 150 DPI</small></span></label>
+        <label><input type="radio" name="preset" value="smallest"><span><strong>Smallest</strong><small>Lower image quality · 96 DPI</small></span></label>
+      </div>
+      <p id="presetHelp" class="help">Recompresses embedded images. Text remains selectable and searchable.</p>
+      <div class="destination"><!-- OUTPUT_PICKER --></div>
+      <p class="help">Original files stay unchanged. Each PDF is saved as a new copy. Already optimized files may stay the same size.</p>
+    </section>
+    <section class="queue" aria-label="PDF files">
+      <div class="queue-head"><h2>Your files <span id="fileCount">0</span></h2><button id="clearFiles" class="text-button">Clear all</button></div>
+      <div id="emptyState"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M29 6H13a3 3 0 0 0-3 3v30a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15zM29 6v9h9M17 23l5 5-5 5m14-10-5 5 5 5"/></svg><h3>Make room for smaller PDFs</h3><p>Add files to compare their size before and after compression.</p><button id="emptyAdd">Add PDFs</button></div>
+      <div id="fileList"></div>
+    </section>
+  </main>
+  <footer>
+    <div class="summary"><strong id="summary">No files added</strong><span id="status" role="status" aria-live="polite">Add PDFs to start.</span><span id="warning"></span></div>
+    <progress id="progress" max="100" value="0" aria-label="Compression progress" hidden></progress>
+    <button id="openOutput" hidden>Open folder</button><button id="cancel" class="danger" hidden>Cancel</button><button id="compress" class="primary" disabled>Compress PDFs</button>
+  </footer>
+<script>/* APP_SCRIPT */</script></body></html>

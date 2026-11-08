@@ -57,7 +57,7 @@ class ConversionTests(unittest.TestCase):
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             result = main([str(self.root), "-o", str(self.root / "out"), "--dpi", "72"])
         self.assertEqual(result, 1)
-        self.assertTrue((self.root / "out" / "report" / "page_002.jpg").exists())
+        self.assertTrue((self.root / "out" / "report_images" / "page_002.jpg").exists())
 
     def test_validation_and_relative_paths(self):
         self.assertEqual(project_path("input"), BASE_DIR / "input")

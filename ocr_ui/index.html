@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Searchable PDF · OCR</title><style>/* APP_STYLES */</style></head>
+<body>
+<header><div><p class="eyebrow">DOCUMENT TOOLS</p><h1>Searchable PDF <span>· OCR</span></h1><p>Find and copy text in your scanned documents.</p></div><button id="addFiles" class="primary">+ Add PDFs</button></header>
+<main>
+  <section class="settings" aria-label="OCR settings">
+    <div class="cpu-badge">CPU · No GPU required</div>
+    <h2>Document languages</h2>
+    <div id="selectedLanguages" class="selected-languages"></div>
+    <button id="chooseLanguages" class="language-choose" disabled>Choose languages</button>
+    <p id="languageHelp" class="help">Preparing language packs…</p>
+    <button id="downloadLanguages" hidden>Download languages</button>
+    <label class="profile-label" for="profile">Processing</label>
+    <select id="profile"><option value="light">Light · 150 DPI</option><option value="balanced" selected>Balanced · 200 DPI</option><option value="detailed">Detailed · 300 DPI</option></select>
+    <p id="profileHelp" class="help">A balance of detail and processing time.</p>
+    <div class="destination"><!-- OUTPUT_PICKER --></div>
+    <p class="help">Adds hidden text to the original pages. Pages with existing text stay unchanged.</p>
+  </section>
+  <section class="queue" aria-label="PDF files">
+    <div class="queue-head"><h2>Your files <span id="fileCount">0</span></h2><button id="clearFiles" class="text-button">Clear all</button></div>
+    <div id="emptyState"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M29 6H13a3 3 0 0 0-3 3v30a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3V15zM29 6v9h9M17 23h14M24 23v12m-4 0h8"/></svg><h3>Give your scans searchable text</h3><p>Add PDFs and choose the languages in your document. Processing stays on this computer.</p><button id="emptyAdd">Add PDFs</button></div>
+    <div id="fileList"></div>
+    <p class="ocr-note">Recognition depends on scan quality. Review important names and numbers after OCR.</p>
+  </section>
+</main>
+<footer><div class="summary"><strong id="summary">No files added</strong><span id="status" role="status" aria-live="polite">Connecting to your workspace…</span><span id="warning"></span></div><progress id="progress" max="100" value="0" aria-label="OCR progress" hidden></progress><button id="openOutput" hidden>Open folder</button><button id="cancel" class="danger" hidden>Cancel</button><button id="startOCR" class="primary" disabled>Create searchable PDFs</button></footer>
+<dialog id="languageDialog" aria-labelledby="languageTitle">
+  <div class="language-dialog-head"><div><p class="eyebrow">MULTILINGUAL OCR</p><h2 id="languageTitle">Choose document languages</h2></div><button id="closeLanguages">Done</button></div>
+  <p class="help">Select up to 5 languages. Choose only those used in the document for better speed and accuracy.</p>
+  <input id="languageSearch" type="search" placeholder="Search languages…" aria-label="Search languages">
+  <div id="languageList" class="language-list"></div>
+  <p id="languageSelectionStatus" role="status" class="help"></p>
+  <p class="download-note">Additional packs download from the official Tesseract project. Internet is needed once per language; OCR then works offline. Documents are never uploaded.</p>
+</dialog>
+<dialog id="completionDialog" class="ocr-completion" aria-labelledby="completionTitle" aria-describedby="completionSummary completionNote">
+  <div id="completionIcon" class="completion-icon" aria-hidden="true">✓</div>
+  <h2 id="completionTitle">Searchable PDFs created</h2>
+  <p id="completionSummary"></p>
+  <div id="completionPaths" class="completion-paths"></div>
+  <p id="completionNote"></p>
+  <p id="completionMessage" role="alert" hidden></p>
+  <div class="completion-actions"><button id="completionDone" autofocus>Done</button><button id="completionOpenOutput" class="primary">Open output folder</button></div>
+</dialog>
+<script>/* APP_SCRIPT */</script></body></html>

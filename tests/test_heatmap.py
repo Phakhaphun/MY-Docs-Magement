@@ -19,7 +19,8 @@ from tools.test_workspace import test_workspace
 
 class InterpolationTests(unittest.TestCase):
     def setUp(self):
-        self.settings = load_settings()
+        # Keep the original numerical guarantees under the explicit legacy mode.
+        self.settings = {**load_settings(), "estimation_method": "linear"}
         self.values = self.settings["temperatures"]
 
     def test_recovers_six_measurements_at_actual_positions(self):

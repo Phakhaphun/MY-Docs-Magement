@@ -15,7 +15,19 @@ def validate_settings(settings: dict) -> dict:
     """Validate a complete configuration before allocating a raster or figure."""
     if not isinstance(settings, dict):
         raise ValueError("Settings must be a JSON object.")
-    result = validate_geometry(settings)
+    result = dict(settings)
+    if result.setdefault("estimation_method", "idw") not in ("idw", "linear", "smooth"):
+        raise ValueError("Estimation method must be idw, linear, or smooth.")
+    power = result.setdefault("idw_power", 2.0)
+    if type(power) not in (int, float) or not math.isfinite(power) or not 1 <= power <= 5:
+        raise ValueError("IDW power must be a finite number between 1 and 5.")
+    result = validate_geometry(result)
+    for key, default in (("layout_grid_visible", True), ("layout_snap", False)):
+        if type(result.setdefault(key, default)) is not bool:
+            raise ValueError(f"{key} must be true or false.")
+    spacing = result.setdefault("layout_grid_spacing", min(result["area_width"], result["area_height"]) / 10)
+    if type(spacing) not in (int, float) or not math.isfinite(spacing) or not 1e-12 <= spacing <= 1e9:
+        raise ValueError("Placement grid spacing must be between 0.000000000001 and 1,000,000,000.")
     result["temperatures"] = validate_temperatures(result.get("temperatures")).tolist()
     for key, low, high in (("grid_rows", 2, 2000), ("grid_cols", 2, 2000), ("dpi", 72, 600)):
         value = result.get(key)

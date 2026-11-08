@@ -41,7 +41,7 @@ def validate_geometry(settings: dict) -> dict:
     np.fill_diagonal(distances, np.inf)
     if distances.min() < 1e-9:
         raise ValueError("Measurement positions must be distinct; two points overlap.")
-    if np.linalg.matrix_rank(normalized - normalized.mean(axis=0), tol=1e-9) < 2:
+    if result.get("estimation_method", "idw") != "idw" and np.linalg.matrix_rank(normalized - normalized.mean(axis=0), tol=1e-9) < 2:
         raise ValueError("Points cannot all lie on one straight line. Spread them across the area.")
     result["sensor_positions"] = points.tolist()
     return result

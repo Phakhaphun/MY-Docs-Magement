@@ -9,7 +9,7 @@ from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 
-from .spatial import spatial_grid
+from .spatial import spatial_grid, method_name
 from .settings import validate_settings
 
 COLORS = ["#203E9A", "#19A9DF", "#35BD89", "#F1D948", "#F08A38", "#C82E3C"]
@@ -34,7 +34,7 @@ def render_png(settings: dict, *, preview: bool = False) -> bytes:
             axes = figure.add_subplot(111)
             palette = thermal_palette().with_extremes(bad="#edf2f7")
             image = axes.imshow(grid, origin="upper", extent=(0, width, height, 0), aspect="auto",
-                                interpolation="nearest", cmap=palette,
+                                interpolation="bilinear", interpolation_stage="rgba", cmap=palette,
                                 norm=Normalize(settings["color_min"], settings["color_max"], clip=True))
             axes.set_box_aspect(height / width)
             axes.set_xlim(-0.035 * width, 1.035 * width)
@@ -59,6 +59,12 @@ def render_png(settings: dict, *, preview: bool = False) -> bytes:
             bar = figure.colorbar(image, ax=axes, pad=.035, shrink=.83,
                                  ticks=np.linspace(settings["color_min"], settings["color_max"], 6))
             bar.set_label("Temperature (°C)", labelpad=12)
+            if settings["estimation_method"] == "idw":
+                figure.text(.5, .015, f"Estimated field · {method_name(settings)} · Markers are measured values",
+                            ha="center", fontsize=8, color="#647c94", fontproperties=font)
+            elif settings["estimation_method"] == "smooth":
+                figure.text(.5,.015,"Smooth cubic · Measured region only · Markers are measured values",
+                            ha="center",fontsize=8,color="#647c94",fontproperties=font)
             figure.subplots_adjust(left=.10, right=.88, bottom=.12, top=.88)
             buffer = BytesIO()
             figure.savefig(buffer, format="png", bbox_inches="tight", metadata={"Software": "Temperature Heatmap Generator"})

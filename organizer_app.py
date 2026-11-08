@@ -9,6 +9,7 @@ from uuid import uuid4
 from doc_app import DocumentAPI
 from pdf_to_jpg import BASE_DIR, ConversionCancelled, parse_page_selection
 from pdf_worker import organize_in_process
+from ui_components import bundle_output_picker
 
 
 class OrganizerAPI(DocumentAPI):
@@ -158,6 +159,7 @@ class OrganizerAPI(DocumentAPI):
 
 def build_html():
     directory = BASE_DIR / "organizer_ui"
-    return (directory / "index.html").read_text(encoding="utf-8").replace(
+    html = (directory / "index.html").read_text(encoding="utf-8").replace(
         "/* APP_STYLES */", (directory / "styles.css").read_text(encoding="utf-8")
     ).replace("/* APP_SCRIPT */", (directory / "app.js").read_text(encoding="utf-8"))
+    return bundle_output_picker(html, path_id="output", button_id="browse")

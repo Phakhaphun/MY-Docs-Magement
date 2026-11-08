@@ -1,6 +1,7 @@
 """Integration test for multi-file selection and background GUI conversion."""
 
 from pathlib import Path
+import gc
 import tempfile
 import time
 import tkinter as tk
@@ -15,6 +16,11 @@ from ui_settings import load_recent_paths
 
 
 class UIConversionTests(unittest.TestCase):
+    def tearDown(self):
+        # Tk objects can form cycles after destroy(). Release them on the UI
+        # thread before later background-worker tests trigger garbage collection.
+        gc.collect()
+
     def test_multiple_files_to_selected_output(self):
         with tempfile.TemporaryDirectory(dir=BASE_DIR, prefix="test_ui_") as temporary:
             folder = Path(temporary)
@@ -56,7 +62,7 @@ class UIConversionTests(unittest.TestCase):
                     self.assertFalse(app.running, "Background conversion did not complete")
                     complete.assert_called_once()
                 for file in files:
-                    image = output / file.stem / "page_001.jpg"
+                    image = output / f"{file.stem}_images" / "page_001.jpg"
                     self.assertTrue(image.is_file())
                     self.assertEqual(image.read_bytes()[:2], b"\xff\xd8")
                 self.assertEqual(float(app.progress["value"]), 2)

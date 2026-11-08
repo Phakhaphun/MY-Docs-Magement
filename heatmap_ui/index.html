@@ -10,19 +10,22 @@
     <span class="rail-bottom" title="Runs locally on your computer">LOCAL</span>
   </aside>
   <main>
-    <header><div><div class="eyebrow">ENGINEERING WORKSPACE</div><h1>Temperature Heatmap</h1><p>Six measurements. One clear view.</p></div><span class="local-badge"><i></i> Offline workspace</span></header>
+    <header><div><div class="eyebrow">ENGINEERING WORKSPACE</div><h1>Temperature Heatmap</h1><p>Place your measurements. Estimate the field between and beyond them.</p></div><span class="local-badge"><i></i> Offline workspace</span></header>
     <div class="workspace">
       <form id="settingsForm" class="settings">
         <details class="card settings-section area-settings" id="areaSection">
-          <summary><span>Measurement area</span><span class="tag">Size</span></summary><div class="section-content">
+          <summary><span>Area &amp; point layout</span><span class="tag">X/Y</span></summary><div class="section-content">
           <div class="area-fields"><label>Width · X<input id="area_width" type="number" min="0.000001" max="1000000000" step="any" required></label><label>Height · Y<input id="area_height" type="number" min="0.000001" max="1000000000" step="any" required></label><label>Unit<select id="area_unit"><option value="relative">Relative</option><option value="mm">mm</option><option value="cm">cm</option><option value="m">m</option></select></label></div>
           <p class="help">Origin (0, 0) is the top-left corner. X → right, Y ↓ down.</p>
+          <button id="openLayout" type="button" class="layout-launch" aria-haspopup="dialog" aria-controls="layoutDialog"><svg id="layoutMini" viewBox="0 0 320 200" aria-hidden="true"></svg><span>Edit point layout <span aria-hidden="true">↗</span></span><small>Open a larger canvas with grid and snapping</small></button>
           </div>
         </details>
         <details class="card settings-section measurements" id="measurementsSection" open>
           <summary><span>Measurements</span><span class="tag">°C</span></summary><div class="section-content">
-          <p class="help">Top row: points 1–3 · Bottom row: points 4–6</p>
-          <div class="point-head"><span>POINT NAME</span><span>TEMPERATURE · °C</span></div>
+          <div class="model-controls"><label>Estimation model<select id="estimation_method"><option value="idw">Full area · IDW</option><option value="smooth">Measured region · Smooth</option><option value="linear">Measured region · Linear</option></select></label><label class="power-field" id="powerField">Power<input id="idw_power" type="number" min="1" max="5" step="0.1" required></label></div>
+          <details class="model-equation"><summary>About the model</summary><p class="help model-help" id="modelHelp">IDW uses nearby readings to estimate temperatures across the full area.</p></details>
+          <p class="help">Open Position for precise X/Y coordinates.</p>
+          <div class="point-head"><span>POINT NAME</span><span>°C</span><span>POSITION</span></div>
           <div class="point-table" id="sensorGrid"></div>
           </div>
         </details>
@@ -43,12 +46,20 @@
       </form>
       <div class="results">
         <section class="card preview-card"><div class="preview-header"><div><h2>Heatmap preview</h2><span id="previewMeta" class="muted">Preparing...</span></div><div class="zoom-controls" aria-label="Preview zoom"><button id="zoomOut" class="icon-button" type="button" title="Zoom out" aria-label="Zoom out">&minus;</button><button id="fitBtn" class="secondary" type="button" title="Fit image to preview">Fit</button><button id="zoomIn" class="icon-button" type="button" title="Zoom in" aria-label="Zoom in">+</button><span id="zoomLabel">100%</span></div></div><div class="preview-surface" id="previewSurface" tabindex="0" aria-label="Scrollable heatmap preview" title="Ctrl + mouse wheel or pinch to zoom. Scroll to pan."><div id="previewCanvas"><img id="previewImage" alt="Temperature heatmap with six labeled measurement points" draggable="false" hidden><div id="loading">Preparing your workspace...</div></div></div><div class="preview-footer"><span id="previewState">Waiting for preview</span><span id="areaSummary">Measurement area</span></div></section>
-        <section class="stats" aria-label="Measurement statistics"><div><span>MINIMUM</span><strong id="minimum">—</strong></div><div><span>MAXIMUM</span><strong id="maximum">—</strong></div><div><span>MEAN</span><strong id="mean">—</strong></div><div><span>SPREAD · ΔT</span><strong id="spread">—</strong></div></section>
+        <div id="estimateNote" class="estimate-note" role="note">Estimated colors are not additional measurements. This is a spatial estimate, not a heat-transfer simulation.</div>
+        <section class="stats" aria-label="Measured point statistics"><div><span>MEASURED MIN</span><strong id="minimum">—</strong></div><div><span>MEASURED MAX</span><strong id="maximum">—</strong></div><div><span>MEASURED MEAN</span><strong id="mean">—</strong></div><div><span>SPREAD · ΔT</span><strong id="spread">—</strong></div></section>
       </div>
     </div>
-    <footer class="card export-bar"><div class="destination"><label for="output_path">Save PNG to</label><div class="path-row"><input id="output_path" type="text" aria-label="PNG output path"><button id="browse" class="secondary" type="button">Browse</button></div></div><button id="export" class="primary" type="button">Export PNG <span>↗</span></button></footer>
+    <footer class="card export-bar"><div class="destination"><!-- OUTPUT_PICKER --></div><button id="export" class="primary" type="button">Export PNG <span>↗</span></button></footer>
     <div id="status" role="status" aria-live="polite">Connecting to the local workspace…</div>
   </main>
+  <dialog id="layoutDialog" aria-labelledby="layoutTitle">
+    <div class="layout-dialog-head"><div><div class="eyebrow">MEASUREMENT GEOMETRY</div><h2 id="layoutTitle">Point layout</h2><p>Drag a point to position it. Changes apply as you move.</p></div><button id="closeLayout" type="button" class="secondary">Done</button></div>
+    <div class="layout-editor"><div class="layout-canvas-panel">
+      <div class="layout-toolbar" role="group" aria-label="Point layout zoom"><button id="layoutZoomOut" type="button" class="secondary" aria-label="Zoom layout out">−</button><span id="layoutZoomLabel" aria-live="polite">100%</span><button id="layoutZoomIn" type="button" class="secondary" aria-label="Zoom layout in">+</button><button id="layoutFit" type="button" class="secondary">Fit</button><span class="layout-gesture-hint">Scroll to zoom · Drag background to pan</span></div>
+      <div id="layoutViewport" class="layout-stage" tabindex="0" aria-label="Zoomable point placement canvas"><div id="layoutZoomCanvas"><svg id="pointLayout" viewBox="0 0 320 200" role="group" aria-label="Measurement point layout"></svg></div></div>
+    </div><div class="layout-sidebar"><div class="placement-controls"><div class="placement-toggles"><label><input id="layout_grid_visible" form="settingsForm" type="checkbox">Show grid</label><label><input id="layout_snap" form="settingsForm" type="checkbox">Snap to grid</label></div><label>Grid spacing <span id="gridUnit">relative</span><input id="layout_grid_spacing" form="settingsForm" type="number" min="0.000000000001" max="1000000000" step="any" required></label></div><p id="gridStatus" class="help grid-status" role="status"></p><div class="layout-selection"><strong id="layoutPointName">Point 1</strong><span id="layoutPointCoordinates"></span></div><div id="layoutPointList" class="layout-point-list" aria-label="Measurement points"></div><p class="help layout-help">Arrow keys move the focused point; Shift moves faster. Select a point here to bring it into view.</p></div></div>
+  </dialog>
   <dialog id="exportDialog" aria-labelledby="exportDialogTitle" aria-describedby="exportDialogDescription">
     <div class="completion-icon" aria-hidden="true">✓</div>
     <h2 id="exportDialogTitle">Export complete</h2>

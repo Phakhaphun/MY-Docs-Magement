@@ -133,7 +133,7 @@ class PDFWorkflowTests(unittest.TestCase):
         self.assertEqual(state["result"]["completed"], 2)
         self.assertEqual(state["result"]["images"], 3)
         self.assertEqual(state["result"]["cancelled"], 0)
-        self.assertTrue((self.folder / "output" / "six pages_2" / "page_005.jpg").exists())
+        self.assertTrue((self.folder / "output" / "six pages_images_2" / "page_005.jpg").exists())
 
 
 if __name__ == "__main__":

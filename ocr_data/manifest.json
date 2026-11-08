@@ -1,0 +1,498 @@
+{
+  "packs": {
+    "afr": {
+      "sha": "09e69cf5478cd6a0fb3ec5e7e7fa95a04f5cafb3",
+      "size": 2652786
+    },
+    "amh": {
+      "sha": "7a302b2bf6306c34177f594e0824eafc48906965",
+      "size": 5470094
+    },
+    "ara": {
+      "sha": "c8d129c67821c1592cac46836686b057ecc203dc",
+      "size": 1432056
+    },
+    "asm": {
+      "sha": "086035c6eacd5788c1f06d58c250023cee2aeb28",
+      "size": 2045427
+    },
+    "aze": {
+      "sha": "27bc73edf08e5e5f0c3e43c315c5c6d965c2f075",
+      "size": 3524799
+    },
+    "aze_cyrl": {
+      "sha": "e2b1b953a5b8db9247c6ddfcb58f062dc0b3b574",
+      "size": 1943672
+    },
+    "bel": {
+      "sha": "65d83dad535f876de31847f5fa2ff1bdd57c7bab",
+      "size": 3692098
+    },
+    "ben": {
+      "sha": "7e9054d1de309714009a85555f5276168d41af9c",
+      "size": 855841
+    },
+    "bod": {
+      "sha": "7bb5029466eaef46aad59fc23b96648df0e4f176",
+      "size": 1966440
+    },
+    "bos": {
+      "sha": "95bed5c32e3759347db0471569303f06e3485f42",
+      "size": 2498242
+    },
+    "bre": {
+      "sha": "c01691329561938fb7d491ea7611c591202952dd",
+      "size": 6335007
+    },
+    "bul": {
+      "sha": "1e65588d127d918ef3ba95b785b446f15827d60f",
+      "size": 1675212
+    },
+    "cat": {
+      "sha": "3fcd350dd2bb76503de90249111fff4e3c6aa0f0",
+      "size": 1146012
+    },
+    "ceb": {
+      "sha": "5a1b96928e54b175db96f00d2aa84b5878d301b9",
+      "size": 716214
+    },
+    "ces": {
+      "sha": "dd6fc79a62f9fcd1c7c6da06b31bb4fdb10dc173",
+      "size": 3795684
+    },
+    "chi_sim": {
+      "sha": "388bac276d033d06e5ed5ba7a7ad14ae58f97dab",
+      "size": 2469156
+    },
+    "chi_sim_vert": {
+      "sha": "f9898e91068a9d04bcacf6d2a244da40e9f30c0c",
+      "size": 1927902
+    },
+    "chi_tra": {
+      "sha": "1955cd8b8d076b898616e9c2c1ace65b43105356",
+      "size": 2366642
+    },
+    "chi_tra_vert": {
+      "sha": "94bc5dbd7fa25dd89ac9c5bd18f3fc6d8409aa0e",
+      "size": 1824756
+    },
+    "chr": {
+      "sha": "e0799a2b888466e5bc2ca60f1f2fb4a7ff4c6990",
+      "size": 374944
+    },
+    "cos": {
+      "sha": "3105b7fb0cd6c26f4fb144ec5d594430e88927cb",
+      "size": 2299099
+    },
+    "cym": {
+      "sha": "900cf17f74514934f87e9a8df3b29cb16b5606fe",
+      "size": 2208919
+    },
+    "dan": {
+      "sha": "85501b582937493f9ae6a64ccd0a6bb0a2ea33d5",
+      "size": 2580059
+    },
+    "deu": {
+      "sha": "97ed7b2b60f2771c07040660ef0f6daf596dc7bf",
+      "size": 1525436
+    },
+    "deu_latf": {
+      "sha": "11a641044a93413454f75fbb8e05b085bd0b9d8d",
+      "size": 6423052
+    },
+    "div": {
+      "sha": "53b46df7d6ae94f75913d6377182867ea09d950b",
+      "size": 1774535
+    },
+    "dzo": {
+      "sha": "3c31175be56ab4db42af614f384ea52ce949082c",
+      "size": 449596
+    },
+    "ell": {
+      "sha": "ed98ae1a88d84414da316e6eeab3232f2c68639b",
+      "size": 1419514
+    },
+    "eng": {
+      "sha": "bbef4675053b5b468cdb477053e28b1c698ba08e",
+      "size": 4113088
+    },
+    "enm": {
+      "sha": "e49b5b86da60f2e728ff2b7f4357692ac32b6a6d",
+      "size": 3101551
+    },
+    "epo": {
+      "sha": "235fc67adf52f43d34b409d44d426d560aefc8e3",
+      "size": 4728393
+    },
+    "est": {
+      "sha": "a2b52c3388358e6dfc4eb8d64d8fc6afbb3630ea",
+      "size": 4458101
+    },
+    "eus": {
+      "sha": "6247f975443ec82c219c39e0b5ea76b4833c82fe",
+      "size": 5175921
+    },
+    "fao": {
+      "sha": "1b845e73759785908aef57161ae4c86a70cce622",
+      "size": 3439772
+    },
+    "fas": {
+      "sha": "1a17ee02076107e73abd15d2038389150c8f824f",
+      "size": 431500
+    },
+    "fil": {
+      "sha": "785f80decce6ddb6b50bd99f4840414359c806ff",
+      "size": 1841715
+    },
+    "fin": {
+      "sha": "73f92402f1891b9066e0e145f245145a2402105c",
+      "size": 7865732
+    },
+    "fra": {
+      "sha": "d9e2b2160be0d1ca3b8f1bf2730fae476ef3b4a6",
+      "size": 1130365
+    },
+    "frm": {
+      "sha": "ed06039efef821b78f22c86abb6c5aea7f02461e",
+      "size": 2024948
+    },
+    "fry": {
+      "sha": "17199d2c33e201d6ad4003a6c86db5f8f273ddc1",
+      "size": 1906018
+    },
+    "gla": {
+      "sha": "e8bae7f1863dd1872ab7d2b2e7f319874c480e60",
+      "size": 3068307
+    },
+    "gle": {
+      "sha": "a7abc7be9aadc862b31ab7c7bc672051cd0245fb",
+      "size": 1181824
+    },
+    "glg": {
+      "sha": "7bc00b38f40f8de1575397f7d05387e5fbbacca4",
+      "size": 2554555
+    },
+    "grc": {
+      "sha": "e94990006fc18e88ab120e7ca6681cc3b290269b",
+      "size": 2246328
+    },
+    "guj": {
+      "sha": "151b9aad2945e3103118e5d36eee288f631d985a",
+      "size": 1418394
+    },
+    "hat": {
+      "sha": "30d3baeaeef791781d782e58feb415b25921df3f",
+      "size": 1976902
+    },
+    "heb": {
+      "sha": "7356caf3cddc9c867fe6727e17726727b8284608",
+      "size": 961404
+    },
+    "hin": {
+      "sha": "a8f0aaec09378115b12a2c6287c57695d082aea2",
+      "size": 1122751
+    },
+    "hrv": {
+      "sha": "6dd4f8638a58eb0663e8f9a80a355c505dcf01a6",
+      "size": 4103348
+    },
+    "hun": {
+      "sha": "5d24fa8e922d6b57853dcb0cc490060c76643cab",
+      "size": 5296273
+    },
+    "hye": {
+      "sha": "ec2e2f3adea785e8964b9771871c44349a6e1b40",
+      "size": 3463717
+    },
+    "iku": {
+      "sha": "6eab87ffe818b5f89baa869c458cb0a6dbed6b2d",
+      "size": 2802266
+    },
+    "ind": {
+      "sha": "3013f50cd2af9aceca00e865ed889144865f0848",
+      "size": 1122661
+    },
+    "isl": {
+      "sha": "20d3bdf8cb8f2289a1f45aa9cdf4ddf2a22e7462",
+      "size": 2278973
+    },
+    "ita": {
+      "sha": "edbffbe0e51892b240630b5eeabededa7e7c9c4f",
+      "size": 2701314
+    },
+    "ita_old": {
+      "sha": "c8a2c3c3d8c82a2d953b0fc64b949c1aa0918c09",
+      "size": 3286123
+    },
+    "jav": {
+      "sha": "3155b8184d50af28dbf8dcbd972e26b388ab1581",
+      "size": 2982741
+    },
+    "jpn": {
+      "sha": "c4178f89991bde90b7fdc647e3e1901868423bd0",
+      "size": 2471260
+    },
+    "jpn_vert": {
+      "sha": "43f38defe4b83588876d0d7a6dee928be1b73af0",
+      "size": 3037480
+    },
+    "kan": {
+      "sha": "78252baeed24bcf327e62226c321c60242108a24",
+      "size": 3608331
+    },
+    "kat": {
+      "sha": "1a3ae11fdd248891dd3fc74f156a0ce246ec1a15",
+      "size": 2524769
+    },
+    "kat_old": {
+      "sha": "f4ae5ab4b3fe4bb3226639d9b23fa71513a40ec8",
+      "size": 423167
+    },
+    "kaz": {
+      "sha": "f889e2b8ffd093d4f2dff8ffca2fa0b73296c028",
+      "size": 4734644
+    },
+    "khm": {
+      "sha": "d466dc2a7e35bf90cb7b54364985703728398687",
+      "size": 1446926
+    },
+    "kir": {
+      "sha": "3e04f2954f33dd021b95de4befffb68904d9e142",
+      "size": 9928497
+    },
+    "kmr": {
+      "sha": "d1afefb7c5a67e273c6612aba77753021506b557",
+      "size": 3568615
+    },
+    "kor": {
+      "sha": "60986d44497689f3abace0b148199476d93292e1",
+      "size": 1677415
+    },
+    "kor_vert": {
+      "sha": "ea0a4963591f153a21c8f237de2a1c644b57f2b9",
+      "size": 1113715
+    },
+    "lao": {
+      "sha": "10bd41ae9352889f85a489eb3183eb0cbebc2516",
+      "size": 6386744
+    },
+    "lat": {
+      "sha": "30dab6a24339f262d1eb21a3ee272d16c46aeba3",
+      "size": 3187463
+    },
+    "lav": {
+      "sha": "71d925c8b6c73980157fd0128412b46e6e8396b5",
+      "size": 2717247
+    },
+    "lit": {
+      "sha": "af9e2b3cd6a65650206b7d89f1b93b51683b9692",
+      "size": 3154896
+    },
+    "ltz": {
+      "sha": "c1ac5b922bbcad34b2654ba471c0a752c0397404",
+      "size": 2606426
+    },
+    "mal": {
+      "sha": "70e96f02cbc2f26630225112cd323a7f0b6ccdf3",
+      "size": 5275996
+    },
+    "mar": {
+      "sha": "79138fadcdb256ec7b59e3bf9df18bd5fb492bee",
+      "size": 2118233
+    },
+    "mkd": {
+      "sha": "fb0b245fb9ec61696e818887a70d8413b2914905",
+      "size": 1600188
+    },
+    "mlt": {
+      "sha": "4242f9cd016987f16feb06973e988eced9604787",
+      "size": 2308796
+    },
+    "mon": {
+      "sha": "2ef212c519edc66ff2508f48dbe1bb836a4ea274",
+      "size": 2137042
+    },
+    "mri": {
+      "sha": "eab6b1a98e4b6ed510d6443a5e3d14519da3b338",
+      "size": 862973
+    },
+    "msa": {
+      "sha": "f0e2b8bef0a681f09baac99a418529205ee80201",
+      "size": 1747801
+    },
+    "mya": {
+      "sha": "cf28ddca604dc7f46bc34f2f4c6a193a0706c03b",
+      "size": 4640561
+    },
+    "nep": {
+      "sha": "948e365b55f9fe8179dde2ff0134feffb210496e",
+      "size": 1002911
+    },
+    "nld": {
+      "sha": "53ce95a9c2488a9a0228939944a184157373d0ae",
+      "size": 6050296
+    },
+    "nor": {
+      "sha": "9209df2c9904c127437c07e16c287cdefd024e7c",
+      "size": 3610079
+    },
+    "oci": {
+      "sha": "4017d4405b09333f22a3de2a4d30cf009bdb4a9b",
+      "size": 6322087
+    },
+    "ori": {
+      "sha": "ae0f9ed13d5c9ad4a4de57c7266c434b83a9f583",
+      "size": 1480066
+    },
+    "pan": {
+      "sha": "d4f00533a6c76ce4045aa6ad40b39f47eeaa333f",
+      "size": 497721
+    },
+    "pol": {
+      "sha": "2382f568f0ce0c4c0a7f4380a291255514e5e97f",
+      "size": 4765518
+    },
+    "por": {
+      "sha": "e9f373e95c66b4bf557c263721ef31f78e5bc301",
+      "size": 1982756
+    },
+    "pus": {
+      "sha": "220cdf92efdc76a227439c0b8734196af9743b98",
+      "size": 1772087
+    },
+    "que": {
+      "sha": "d80c1f308973b3129183843759f23fdcb1c5c2be",
+      "size": 5026336
+    },
+    "ron": {
+      "sha": "04cd2bc7b471431354e9446e973f3472f442e189",
+      "size": 2376323
+    },
+    "rus": {
+      "sha": "b146cb2263acbc6383f8e92ea0ce759537687bb8",
+      "size": 3861738
+    },
+    "san": {
+      "sha": "3df043f3247fd41a21ac47c3b199bc87643e984b",
+      "size": 12404677
+    },
+    "sin": {
+      "sha": "d0c8584e78c44666efcd7fbd47940a8a1121550d",
+      "size": 1727413
+    },
+    "slk": {
+      "sha": "ca99e3e82f69a0e16b48cdfec3c4e706758269f2",
+      "size": 4427661
+    },
+    "slv": {
+      "sha": "835954e891897d3c8b63db48cb5c2712ef2e6b11",
+      "size": 3003829
+    },
+    "snd": {
+      "sha": "1ef6548d22977dc1f236be879dce3a62ac6a47ed",
+      "size": 1694035
+    },
+    "spa": {
+      "sha": "72e901f13ca52cfe34cf239a368b9ed3c0ddaf26",
+      "size": 2294433
+    },
+    "spa_old": {
+      "sha": "42b281f55736b2f714598accfc2a78f409db1f0c",
+      "size": 2894755
+    },
+    "sqi": {
+      "sha": "9624fbf33452a95dd5a0a3a93fe9876108104895",
+      "size": 1874705
+    },
+    "srp": {
+      "sha": "530fb4b1cb27f369bbee7eb0add89bfd73d6f15c",
+      "size": 2149931
+    },
+    "srp_latn": {
+      "sha": "5f81e591adad58a179a2d371aacccaf0801f93a2",
+      "size": 3281787
+    },
+    "sun": {
+      "sha": "894891425c1fe302ce1d8f115a3c00967c6c2832",
+      "size": 1369500
+    },
+    "swa": {
+      "sha": "633d73b35869600452eec58dcd9036cc702c3e48",
+      "size": 2167651
+    },
+    "swe": {
+      "sha": "684e1fa66e4a55b983febf5f9ed04f26ad946e59",
+      "size": 4167034
+    },
+    "syr": {
+      "sha": "462aefc8a1485ae4c38db82f7f50fd105bf30195",
+      "size": 2207208
+    },
+    "tam": {
+      "sha": "fa1793d68f9aba8bf191e8ff1036e2271d288e44",
+      "size": 3237963
+    },
+    "tat": {
+      "sha": "9485ca27d48bb161a47584f8381420462ef6fa27",
+      "size": 1072896
+    },
+    "tel": {
+      "sha": "ee8a33b0f658fc75b8cbfe8c10413eac4f41e6ad",
+      "size": 2769654
+    },
+    "tgk": {
+      "sha": "044766728ce9cb2cc73976175b970a4cea9a870a",
+      "size": 2602685
+    },
+    "tha": {
+      "sha": "ea28de3985668cac00d261c5b91f023ea66e19cd",
+      "size": 1072600
+    },
+    "tir": {
+      "sha": "55e62eb0297e07360db5e9dc5dd86aab8e0a1e9c",
+      "size": 378822
+    },
+    "ton": {
+      "sha": "9eff0fd002798089f5f7d8307be968a36f1ce433",
+      "size": 947249
+    },
+    "tur": {
+      "sha": "1f0b331ef29f50ceb7c44da58e38c7ec42314d0a",
+      "size": 4550554
+    },
+    "uig": {
+      "sha": "36124d6b0ed1c2654a13551203c25b44b4013978",
+      "size": 2794272
+    },
+    "ukr": {
+      "sha": "d02cf90b2911a3da66dac6ae380bcefb18dd7663",
+      "size": 3825102
+    },
+    "urd": {
+      "sha": "715a159d4abea25294c82971be28be215b3d1c4a",
+      "size": 1398718
+    },
+    "uzb": {
+      "sha": "109abc765273b2c9eabd55781f0a619320c80007",
+      "size": 6470703
+    },
+    "uzb_cyrl": {
+      "sha": "c2ff8b9c282a9712b5f24970927377bc18dea7cf",
+      "size": 1563501
+    },
+    "vie": {
+      "sha": "e54a5912fb634c581c4a45ae9f37cbc021ec7140",
+      "size": 531275
+    },
+    "yid": {
+      "sha": "6349588bbabf99f8a812e8231c98c015ea7b60c6",
+      "size": 545606
+    },
+    "yor": {
+      "sha": "3e0cd582f65f17844039173057dfc015bf19f61d",
+      "size": 963400
+    }
+  },
+  "repository": "tesseract-ocr/tessdata_fast",
+  "revision": "87416418657359cb625c412a48b6e1d6d41c29bd"
+}

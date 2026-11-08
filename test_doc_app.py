@@ -77,7 +77,7 @@ class DocumentWorkspaceTests(unittest.TestCase):
         self.assertFalse(state["running"])
         self.assertEqual((state["completed"], state["failed"], state["progress"]), (1, 1, 100))
         self.assertEqual([f["status"] for f in state["files"]], ["error", "done"])
-        self.assertTrue((output / "sample" / "page_002.jpg").is_file())
+        self.assertTrue((output / "sample_images" / "page_002.jpg").is_file())
         self.assertEqual(state["result"]["completed"], 1)
         self.assertEqual(state["result"]["failed"], 1)
         self.assertEqual(state["result"]["images"], 2)

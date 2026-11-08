@@ -1,0 +1,12 @@
+/* One output-folder control for all four workspaces. */
+.destination-field{width:100%;min-width:0;font-family:"Segoe UI",Tahoma,sans-serif}
+.destination-field>label{display:block;margin:0 0 6px;font-size:10px;font-weight:600;line-height:1.4;color:#5d7a95}
+.destination-field .destination-picker{display:flex;align-items:center;gap:8px;height:36px;min-width:0;padding-left:10px;border:1px solid #d8e6f3;border-radius:7px;background:#f7fbff;overflow:hidden}
+.destination-field .destination-picker>svg{width:16px;height:16px;flex-shrink:0;fill:none;stroke:#7a9fc3;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.destination-field .destination-picker .destination-path{display:block;flex:1;width:0;min-width:0;height:100%;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:#5f7e9a;font:11px "Segoe UI",Tahoma,sans-serif;font-weight:400;text-overflow:ellipsis;box-shadow:none;user-select:text}
+.destination-field .destination-picker .destination-change{display:block;align-self:stretch;flex-shrink:0;margin:0;padding:0 11px;border:0;border-left:1px solid #d8e6f3;border-radius:0;background:#eaf3fd;color:#3979b4;font:11px "Segoe UI",Tahoma,sans-serif;font-weight:600;line-height:normal;white-space:nowrap;cursor:pointer;box-shadow:none}
+.destination-field .destination-picker .destination-change:hover{background:#dcecff}
+.destination-field .destination-picker:focus-within{border-color:#82ade0;box-shadow:0 0 0 2px #2563c61a}
+.destination-field .destination-picker .destination-path:focus{outline:none}
+.destination-field .destination-picker .destination-change:focus-visible{outline:2px solid #2563c6;outline-offset:-3px}
+.destination-field .destination-picker .destination-change:disabled{opacity:.45;cursor:default}

@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 import sys
 import re
+from export_folders import create_export_folder
 
 BASE_DIR = Path(__file__).resolve().parent
 IMAGE_FORMATS = ("jpg", "png", "webp")
@@ -73,17 +74,7 @@ def convert_pdf_to_images(pdf_path, output_dir=None, *, dpi=200, quality=95, ima
         selected_pages = parse_page_selection(page_selection, document.page_count)
         if should_cancel and should_cancel():
             raise ConversionCancelled(images)
-        destination.mkdir(parents=True, exist_ok=True)
-        # mkdir prevents overwriting files, including simultaneous conversions.
-        folder = destination / source.stem
-        suffix = 2
-        while True:
-            try:
-                folder.mkdir()
-                break
-            except FileExistsError:
-                folder = destination / f"{source.stem}_{suffix}"
-                suffix += 1
+        folder = create_export_folder(destination, source, "images")
 
         try:
             for done, number in enumerate(selected_pages, start=1):

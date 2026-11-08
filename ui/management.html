@@ -25,6 +25,8 @@
       <button id="documentsTab" role="tab" aria-selected="true" aria-controls="documents" data-workspace="documents"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6"/><path d="m7 17 3-3 2 2 3-4 3 5"/></svg><span>PDF to Image</span></button>
       <button id="heatmapTab" role="tab" aria-selected="false" aria-controls="heatmap" data-workspace="heatmap" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0ZM12 9v9m5-12h3m-3 4h2"/></svg><span>Heatmap</span></button>
       <button id="organizerTab" role="tab" aria-selected="false" aria-controls="organizer" data-workspace="organizer" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="12" height="15" rx="2"/><path d="M8 7h3M8 11h3M9 21h10a2 2 0 0 0 2-2V8M17 3v9m-3-3 3 3 3-3"/></svg><span>Organize PDF</span></button>
+      <button id="compressorTab" role="tab" aria-selected="false" aria-controls="compressor" data-workspace="compressor" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M7 12l3 3-3 3m10-6-3 3 3 3M10 15h4"/></svg><span>Compress PDF</span></button>
+      <button id="ocrTab" role="tab" aria-selected="false" aria-controls="ocr" data-workspace="ocr" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M7 13h10M12 13v6M9 19h6"/></svg><span>Searchable PDF</span></button>
     </nav>
     <div class="local"><span class="dot">●</span> Works offline<br>Files stay on this computer</div>
   </aside>
@@ -33,6 +35,8 @@
     <iframe id="heatmap" role="tabpanel" aria-labelledby="heatmapTab" title="Temperature Heatmap" srcdoc="<!-- HEATMAP_HTML -->" hidden></iframe>
     <iframe id="organizer" role="tabpanel" aria-labelledby="organizerTab" title="Organize PDF" srcdoc="<!-- ORGANIZER_HTML -->" hidden></iframe>
     <div id="connection" role="status">Connecting to your workspace…</div>
+    <iframe id="compressor" role="tabpanel" aria-labelledby="compressorTab" title="Compress PDF" srcdoc="<!-- COMPRESSOR_HTML -->" hidden></iframe>
+    <iframe id="ocr" role="tabpanel" aria-labelledby="ocrTab" title="Searchable PDF · OCR" srcdoc="<!-- OCR_HTML -->" hidden></iframe>
   </main>
   <script>
     const methods = /* BRIDGE_METHODS */;
@@ -46,7 +50,7 @@
       document.dispatchEvent(new DragEvent('drop', {dataTransfer, bubbles:true, cancelable:true}));
     }
     document.addEventListener('dragover', event => event.preventDefault());
-    document.addEventListener('drop', event => {event.preventDefault(); selectWorkspace(document.getElementById('organizer').hidden ? 'documents' : 'organizer');});
+    document.addEventListener('drop', event => {event.preventDefault(); selectWorkspace(!document.getElementById('ocr').hidden ? 'ocr' : !document.getElementById('compressor').hidden ? 'compressor' : document.getElementById('organizer').hidden ? 'documents' : 'organizer');});
     function connectFrame(name) {
       const frame = document.getElementById(name), child = frame.contentWindow;
       if (frame.hidden || !window.pywebview?.api || child.document.readyState !== "complete" || connected.has(name)) return;
