@@ -2,7 +2,7 @@
 from pathlib import Path
 import re
 
-OPERATIONS={'images','compressed','searchable','merged','extracted','split'}
+OPERATIONS={'images','compressed','searchable','merged','extracted','split','pdf'}
 
 
 def create_export_folder(output,source,operation,*,additional_sources=0):

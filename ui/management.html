@@ -27,8 +27,9 @@
       <button id="organizerTab" role="tab" aria-selected="false" aria-controls="organizer" data-workspace="organizer" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="12" height="15" rx="2"/><path d="M8 7h3M8 11h3M9 21h10a2 2 0 0 0 2-2V8M17 3v9m-3-3 3 3 3-3"/></svg><span>Organize PDF</span></button>
       <button id="compressorTab" role="tab" aria-selected="false" aria-controls="compressor" data-workspace="compressor" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M7 12l3 3-3 3m10-6-3 3 3 3M10 15h4"/></svg><span>Compress PDF</span></button>
       <button id="ocrTab" role="tab" aria-selected="false" aria-controls="ocr" data-workspace="ocr" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M7 13h10M12 13v6M9 19h6"/></svg><span>Searchable PDF</span></button>
+      <button id="imagepdfTab" role="tab" aria-selected="false" aria-controls="imagepdf" data-workspace="imagepdf" tabindex="-1"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="14" height="16" rx="2"/><path d="m5 15 4-4 3 3 3-5M10 22h9a2 2 0 0 0 2-2V8"/><circle cx="7" cy="7" r="1"/></svg><span>Image to PDF</span></button>
     </nav>
-    <div class="local"><span class="dot">●</span> Works offline<br>Files stay on this computer</div>
+    <div class="local"><span class="dot">●</span> Works offline<br>Files stay on this computer<br>Version <!-- APP_VERSION --></div>
   </aside>
   <main>
     <iframe id="documents" role="tabpanel" aria-labelledby="documentsTab" title="PDF to Image" srcdoc="<!-- DOCUMENTS_HTML -->"></iframe>
@@ -37,6 +38,7 @@
     <div id="connection" role="status">Connecting to your workspace…</div>
     <iframe id="compressor" role="tabpanel" aria-labelledby="compressorTab" title="Compress PDF" srcdoc="<!-- COMPRESSOR_HTML -->" hidden></iframe>
     <iframe id="ocr" role="tabpanel" aria-labelledby="ocrTab" title="Searchable PDF · OCR" srcdoc="<!-- OCR_HTML -->" hidden></iframe>
+    <iframe id="imagepdf" role="tabpanel" aria-labelledby="imagepdfTab" title="Image to PDF" srcdoc="<!-- IMAGEPDF_HTML -->" hidden></iframe>
   </main>
   <script>
     const methods = /* BRIDGE_METHODS */;
@@ -50,7 +52,7 @@
       document.dispatchEvent(new DragEvent('drop', {dataTransfer, bubbles:true, cancelable:true}));
     }
     document.addEventListener('dragover', event => event.preventDefault());
-    document.addEventListener('drop', event => {event.preventDefault(); selectWorkspace(!document.getElementById('ocr').hidden ? 'ocr' : !document.getElementById('compressor').hidden ? 'compressor' : document.getElementById('organizer').hidden ? 'documents' : 'organizer');});
+    document.addEventListener('drop', event => {event.preventDefault(); selectWorkspace(!document.getElementById('imagepdf').hidden ? 'imagepdf' : !document.getElementById('ocr').hidden ? 'ocr' : !document.getElementById('compressor').hidden ? 'compressor' : document.getElementById('organizer').hidden ? 'documents' : 'organizer');});
     function connectFrame(name) {
       const frame = document.getElementById(name), child = frame.contentWindow;
       if (frame.hidden || !window.pywebview?.api || child.document.readyState !== "complete" || connected.has(name)) return;

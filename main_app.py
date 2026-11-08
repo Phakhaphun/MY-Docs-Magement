@@ -12,9 +12,11 @@ from window_settings import WindowSettings
 from organizer_app import OrganizerAPI, build_html as organizer_html
 from compressor_app import CompressorAPI, build_html as compressor_html
 from ocr_app import OCRAPI, build_html as ocr_html
+from image_pdf_app import ImagePDFAPI, build_html as image_pdf_html
 
 BASE_DIR = Path(__file__).resolve().parent
 METHODS = {
+    "imagepdf": ("get_state", "choose_files", "choose_output", "remove_file", "clear_files", "set_layout", "thumbnail", "start", "cancel_conversion", "open_output", "send_to"),
     "ocr": ("get_state", "get_languages", "install_languages", "choose_files", "choose_output", "remove_file", "clear_files", "start", "cancel_conversion", "open_output"),
     "compressor": ("get_state", "choose_files", "choose_output", "remove_file", "clear_files", "start", "cancel_conversion", "open_output"),
     "documents": ("get_state", "ready", "choose_files", "choose_output", "remove_file",
@@ -37,6 +39,7 @@ class ManagementAPI:
         self._organizer = OrganizerAPI(self._settings_dir / "organizer_settings.json")
         self._compressor = CompressorAPI(self._settings_dir / "compressor_settings.json")
         self._ocr = OCRAPI(self._settings_dir / "ocr_settings.json")
+        self._imagepdf = ImagePDFAPI(self._settings_dir / "image_pdf_settings.json",on_send=self._send_image_pdfs)
 
     @property
     def _heatmap(self):
@@ -55,7 +58,7 @@ class ManagementAPI:
         if method not in METHODS.get(workspace, ()) or not isinstance(args, list):
             return {"error": "Unknown workspace action."}
         try:
-            target = {"documents": self._documents, "organizer": self._organizer, "compressor": self._compressor, "ocr": self._ocr}.get(workspace)
+            target = {"documents": self._documents, "organizer": self._organizer, "compressor": self._compressor, "ocr": self._ocr, "imagepdf": self._imagepdf}.get(workspace)
             if target is None:
                 target = self._heatmap
             return getattr(target, method)(*args)
@@ -74,6 +77,7 @@ class ManagementAPI:
         self._organizer._window = window
         self._compressor._window = window
         self._ocr._window = window
+        self._imagepdf._window = window
         if self._heatmap_instance is not None:
             self._heatmap_instance._window = window
 
@@ -90,6 +94,9 @@ class ManagementAPI:
         control.Invoke(Action(configure))
 
     def _on_drop(self, event):
+        if self._window.evaluate_js("!document.getElementById('imagepdf').hidden"):
+            self._imagepdf._on_drop(event)
+            return
         if self._window.evaluate_js("!document.getElementById('ocr').hidden"):
             self._ocr._on_drop(event)
             return
@@ -100,8 +107,15 @@ class ManagementAPI:
         (self._organizer if organizer_active else self._documents)._on_drop(event)
 
     def _can_close(self):
-        return self._documents._can_close() and self._organizer._can_close() and self._compressor._can_close() and self._ocr._can_close() and (
+        return self._documents._can_close() and self._organizer._can_close() and self._compressor._can_close() and self._ocr._can_close() and self._imagepdf._can_close() and (
             self._heatmap_instance is None or not self._heatmap_instance._busy.is_set())
+
+    def _send_image_pdfs(self,target,paths):
+        api=self._ocr if target=='ocr' else self._compressor
+        with api._lock:
+            if api._state['running']:return {'error':'The destination is busy. Wait for its current operation to finish.'}
+            api._add_files(paths)
+        return {'workspace':target}
 
 
 def build_html():
@@ -110,7 +124,8 @@ def build_html():
     embedded_style = "<style>body>.rail{display:none!important}body{min-width:0!important}</style>"
     template = (BASE_DIR / "ui" / "management.html").read_text(encoding="utf-8")
     template = template.replace("<!-- APP_LOGO -->", (BASE_DIR / "ui" / "assets" / "docspace.svg").read_text(encoding="utf-8"))
-    for name, content in (("DOCUMENTS", document_html()), ("ORGANIZER", organizer_html()), ("COMPRESSOR", compressor_html()), ("OCR", ocr_html()), ("HEATMAP", heatmap_html())):
+    template = template.replace("<!-- APP_VERSION -->",escape((BASE_DIR/"VERSION").read_text(encoding="utf-8").strip()))
+    for name, content in (("DOCUMENTS", document_html()), ("IMAGEPDF", image_pdf_html()), ("ORGANIZER", organizer_html()), ("COMPRESSOR", compressor_html()), ("OCR", ocr_html()), ("HEATMAP", heatmap_html())):
         template = template.replace(f"<!-- {name}_HTML -->", escape(content.replace("</head>", embedded_style + "</head>"), quote=True))
     return template.replace("/* BRIDGE_METHODS */", json.dumps(METHODS))
 

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Image to PDF</title><style>/* APP_STYLES */</style></head><body>
+<header><div><p class="eyebrow">DOCUMENT TOOLS</p><h1>Image to PDF</h1><p>Turn photos and scans into a document.</p></div><button id="addImages" class="primary">+ Add images</button></header>
+<main><section class="canvas" aria-label="Image layout">
+  <div class="canvas-head"><div><h2>Your images <span id="imageCount">0</span></h2><p>Drag to reorder · One image per page</p></div><button id="clearImages" class="text-button">Clear all</button></div>
+  <div id="imageScroll"><div id="emptyState"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="6" width="30" height="32" rx="4"/><path d="M15 42h25a3 3 0 0 0 3-3V15M11 31l8-9 6 6 5-8 6 11"/><circle cx="16" cy="15" r="3"/></svg><h3>A document starts with your images</h3><p>Add JPG, PNG or WebP files. Arrange them in the order you want.</p><button id="emptyAdd">Add images</button></div><div id="imageGrid" hidden></div></div>
+  <div class="canvas-note">Use the arrow buttons to reorder without dragging. Original images stay unchanged.</div>
+</section><section class="settings" aria-label="PDF settings"><p class="eyebrow">EXPORT</p><h2>PDF settings</h2>
+  <label for="pageSize">Page size</label><select id="pageSize"><option value="a4">A4</option><option value="letter">Letter</option><option value="original">Original size</option></select>
+  <label for="orientation">Orientation</label><select id="orientation"><option value="auto">Auto · Match each image</option><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select>
+  <div class="margin-row"><label for="margin">Margins</label><div><input id="margin" type="number" min="0" max="50" step="0.5" value="10" aria-label="Margins in millimeters"><span>mm</span></div></div>
+  <label for="mode">Output</label><select id="mode"><option value="combine">Combine into one PDF</option><option value="separate">One PDF per image</option></select>
+  <p id="layoutHelp" class="help">Images fit inside the page without cropping.</p><div class="destination"><!-- OUTPUT_PICKER --></div><p class="help">Output folders use your image names. Existing files are kept.</p>
+</section></main>
+<footer><div class="summary"><strong id="summary">No images added</strong><span id="status" role="status" aria-live="polite">Connecting to your workspace…</span><span id="warning"></span></div><progress id="progress" max="100" value="0" aria-label="PDF creation progress" hidden></progress><button id="viewResult" hidden>View result</button><button id="cancel" class="danger" hidden>Cancel</button><button id="createPDF" class="primary" disabled>Create PDF</button></footer>
+<dialog id="completionDialog" aria-labelledby="completionTitle" aria-describedby="completionSummary"><div id="completionIcon" class="completion-icon" aria-hidden="true">✓</div><h2 id="completionTitle">PDF created</h2><p id="completionSummary"></p><div id="completionPaths"></div><p id="completionNote" class="help"></p><p id="completionError" role="alert" hidden></p><div class="completion-actions"><button id="completionDone" autofocus>Done</button><button id="completionOpen" class="primary">Open output folder</button></div><div id="nextSteps"><span>Next step</span><div><button id="continueOCR">Continue with OCR</button><button id="continueCompress">Compress PDF</button></div></div></dialog>
+<script>/* APP_SCRIPT */</script></body></html>

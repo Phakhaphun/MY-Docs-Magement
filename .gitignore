@@ -11,6 +11,7 @@ workspace_settings.json
 organizer_settings.json
 compressor_settings.json
 ocr_settings.json
+image_pdf_settings.json
 ocr_data/tessdata/*.partial
 ocr_data/tessdata/*.traineddata
 !ocr_data/tessdata/eng.traineddata

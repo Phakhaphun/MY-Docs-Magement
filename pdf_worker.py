@@ -27,7 +27,10 @@ def _render(connection, cancelled, operation, source, output, options):
             if connection.recv() != "continue":
                 cancelled.set()
 
-        if operation == "ocr":
+        if operation == "image-pdf":
+            from images_to_pdf import images_to_pdf
+            images = images_to_pdf(source, output, **options, on_progress=progress, should_cancel=cancelled.is_set)
+        elif operation == "ocr":
             from ocr_pdf import ocr_pdf
             images = ocr_pdf(source, output, **options, on_progress=progress, should_cancel=cancelled.is_set)
         elif operation == "compress":
@@ -43,7 +46,10 @@ def _render(connection, cancelled, operation, source, output, options):
     except ConversionCancelled as exc:
         connection.send(("cancelled", [str(path) for path in exc.images]))
     except Exception as exc:
-        connection.send(("error", str(exc)))
+        if operation == "image-pdf":
+            connection.send(("error", str(exc), [str(path) for path in getattr(exc,"images",[])]))
+        else:
+            connection.send(("error", str(exc)))
     finally:
         connection.close()
 
@@ -63,6 +69,10 @@ def compress_in_process(source, output, *, preset, on_progress=None, should_canc
 
 def ocr_in_process(source, output, *, languages, profile, on_progress=None, should_cancel=None):
     return _run_in_process("ocr", str(source), output, {"languages": languages, "profile": profile}, on_progress, should_cancel)
+
+
+def images_in_process(jobs, output, *, on_progress=None, should_cancel=None, **options):
+    return _run_in_process("image-pdf", jobs, output, options, on_progress, should_cancel)
 
 
 def _run_in_process(operation, source, output, options, on_progress, should_cancel):
@@ -98,7 +108,10 @@ def _run_in_process(operation, source, output, options, on_progress, should_canc
             elif message[0] == "cancelled":
                 raise ConversionCancelled([Path(path) for path in message[1]])
             elif message[0] == "error":
-                raise RuntimeError(message[1])
+                error = RuntimeError(message[1])
+                if len(message)>2:
+                    error.images = [Path(path) for path in message[2]]
+                raise error
     finally:
         parent.close()
         child.close()
