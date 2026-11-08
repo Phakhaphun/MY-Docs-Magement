@@ -45,13 +45,18 @@ def main():
         def run():
             try:
                 wait(lambda:window.evaluate_js("document.getElementById('connection').hidden"))
+                evidence=BASE_DIR/'.runtime-tmp';evidence.mkdir(exist_ok=True)
                 version=(BASE_DIR/'VERSION').read_text(encoding='utf-8').strip()
                 assert window.evaluate_js("document.querySelector('.local').textContent.includes("+json.dumps(version)+")")
                 window.evaluate_js("document.getElementById('imagepdfTab').click()")
                 api._on_drop({'dataTransfer':{'files':[{'pywebviewFullPath':str(path)} for path in sources]}})
                 wait(lambda:js("return d.querySelectorAll('.image-card').length===4;"))
                 wait(lambda:js("return d.querySelectorAll('.thumb img:not([hidden])').length===4;"))
+                assert js("return d.querySelectorAll('#pageSize option').length;")>=17
                 assert not api._documents.get_state()['files']
+                js("d.getElementById('sortImages').value='az';d.getElementById('sortImages').dispatchEvent(new Event('change'));")
+                wait(lambda:api._imagepdf.get_state()['files'][0]['name']=='Inspection.png')
+                wait(lambda:js("return !d.getElementById('sortImages').disabled;"))
                 js("const cards=d.querySelectorAll('.image-card'),transfer=new DataTransfer();cards[3].dispatchEvent(new DragEvent('dragstart',{dataTransfer:transfer,bubbles:true}));cards[0].dispatchEvent(new DragEvent('drop',{dataTransfer:transfer,bubbles:true,cancelable:true}));")
                 wait(lambda:api._imagepdf.get_state()['files'][0]['name']==sources[3].name)
                 wait(lambda:js("return !d.querySelector('[data-action=rotateRight]').disabled;"))
@@ -65,7 +70,20 @@ def main():
                 wait(lambda:js("return d.querySelectorAll('.image-card').length===3;"))
                 js("d.getElementById('pageSize').value='original';d.getElementById('pageSize').dispatchEvent(new Event('input'));")
                 assert js("return d.getElementById('orientation').disabled;")
-                js("d.getElementById('pageSize').value='a4';d.getElementById('pageSize').dispatchEvent(new Event('input'));d.getElementById('orientation').value='portrait';d.getElementById('margin').value='8';")
+                js("d.getElementById('pageSize').value='legal';d.getElementById('pageSize').dispatchEvent(new Event('input'));d.querySelector('[data-orientation=portrait]').click();d.querySelector('[data-margin=\"20\"]').click();")
+                assert js("return d.getElementById('paperDimensions').textContent.includes('355.6');")
+                assert js("const r=d.querySelector('.paper-preview').getBoundingClientRect();return Math.abs(r.width/r.height-215.9/355.6)<.015;")
+                assert js("return d.getElementById('margin').value;")=='20'
+                screenshot(evidence/'image-pdf-page-setup.png')
+                js("d.getElementById('pageSize').value='custom';d.getElementById('customWidth').value='320';d.getElementById('customHeight').value='180';d.getElementById('pageSize').dispatchEvent(new Event('input'));")
+                assert js("return !d.getElementById('customSizeFields').hidden&&d.getElementById('orientation').disabled;")
+                js("d.getElementById('swapDimensions').click();")
+                assert js("return d.getElementById('customWidth').value;")=='180'
+                js("d.getElementById('swapDimensions').click();d.getElementById('customWidth').value='20';d.getElementById('margin').value='10';d.getElementById('customWidth').dispatchEvent(new Event('input'));")
+                assert js("return d.getElementById('createPDF').disabled&&!d.getElementById('layoutError').hidden;")
+                js("d.getElementById('customWidth').value='320';d.getElementById('margin').value='8';d.getElementById('margin').dispatchEvent(new Event('input'));")
+                assert js("return d.getElementById('layoutError').hidden;")
+                assert js("const r=d.querySelector('.paper-preview').getBoundingClientRect();return Math.abs(r.width/r.height-320/180)<.015;")
                 evidence=BASE_DIR/'.runtime-tmp';evidence.mkdir(exist_ok=True)
                 for width,height in [(1280,820),(1080,700)]:
                     window.resize(width,height);time.sleep(.25)
@@ -78,7 +96,10 @@ def main():
                 wait(lambda:js("return d.getElementById('completionDialog').open;"))
                 result=api._imagepdf.get_state()['result'];assert not result['error'],result
                 assert len(result['paths'])==1
-                with pymupdf.open(result['paths'][0]) as doc:assert doc.page_count==3
+                with pymupdf.open(result['paths'][0]) as doc:
+                    assert doc.page_count==3
+                    assert abs(doc[0].rect.width-320*72/25.4)<.02
+                    assert abs(doc[0].rect.height-180*72/25.4)<.02
                 screenshot(evidence/'image-pdf-complete.png')
                 js("d.getElementById('continueOCR').click();")
                 wait(lambda:window.evaluate_js("!document.getElementById('ocr').hidden"))

@@ -125,3 +125,27 @@ class ImagesToPDFTests(unittest.TestCase):
         self.assertEqual(len(caught.exception.images),1)
         self.assertTrue(caught.exception.images[0].is_file())
         self.assertFalse(list((self.root/'partial').rglob('*.partial')))
+
+    def test_additional_paper_sizes_have_correct_physical_dimensions(self):
+        expected={'a0':(841,1189),'a1':(594,841),'a2':(420,594),'a3':(297,420),
+            'a5':(148,210),'a6':(105,148),'b4':(250,353),'b5':(176,250),
+            'legal':(215.9,355.6),'tabloid':(279.4,431.8),'executive':(184.15,266.7),
+            'photo4x6':(101.6,152.4),'photo5x7':(127,177.8),'jis_b4':(257,364),'jis_b5':(182,257),'folio':(215.9,330.2)}
+        for paper,(width,height) in expected.items():
+            with self.subTest(paper=paper):
+                output=images_to_pdf(self.jobs[:1],self.root/'paper-sizes',page_size=paper,orientation='portrait',margin=5)[0]
+                with pymupdf.open(output) as doc:
+                    self.assertAlmostEqual(doc[0].rect.width,width*72/25.4,delta=.02)
+                    self.assertAlmostEqual(doc[0].rect.height,height*72/25.4,delta=.02)
+
+    def test_custom_size_is_exact_and_bad_margins_do_not_create_outputs(self):
+        output=images_to_pdf(self.jobs[:1],self.root/'custom',page_size='custom',
+            custom_width=320,custom_height=180,orientation='portrait',margin=7)[0]
+        with pymupdf.open(output) as doc:
+            self.assertAlmostEqual(doc[0].rect.width,320*72/25.4,delta=.02)
+            self.assertAlmostEqual(doc[0].rect.height,180*72/25.4,delta=.02)
+        for values in ({'custom_width':0},{'custom_height':float('inf')},{'custom_width':True}):
+            with self.assertRaises(ValueError):validate_options({'page_size':'custom',**values})
+        with self.assertRaisesRegex(ValueError,'margin|Margin'):
+            images_to_pdf(self.jobs[:1],self.root/'invalid-margin',page_size='custom',custom_width=20,custom_height=40,margin=10)
+        self.assertFalse((self.root/'invalid-margin').exists())

@@ -7,7 +7,7 @@ from threading import Thread
 from uuid import uuid4
 
 from doc_app import DocumentAPI
-from images_to_pdf import image_info,validate_options,DEFAULTS
+from images_to_pdf import image_info,validate_options,DEFAULTS,PAPER_SIZES
 from pdf_to_jpg import BASE_DIR,ConversionCancelled
 from pdf_worker import images_in_process
 from ui_components import bundle_output_picker
@@ -23,7 +23,8 @@ class ImagePDFAPI(DocumentAPI):
             options=validate_options(data.get('image_pdf',{}))
         except (OSError,ValueError,TypeError,AttributeError):pass
         self._recent['image_pdf']=options
-        self._state.update(options=options,message='Add images to create a PDF.')
+        catalog=[dict(id=key,name=value[0],group=value[1],width=value[2],height=value[3]) for key,value in PAPER_SIZES.items()]
+        self._state.update(options=options,paper_sizes=catalog,message='Add images to create a PDF.')
 
     def _add_files(self,paths):
         with self._lock:
@@ -34,7 +35,7 @@ class ImagePDFAPI(DocumentAPI):
                 item={'id':uuid4().hex,'path':str(path),'name':path.name,'rotation':0,'status':'ready','detail':'Ready','size':0,'width':0,'height':0}
                 try:
                     info=image_info(path)
-                    item.update(width=info['width'],height=info['height'],size=path.stat().st_size)
+                    item.update(width=info['width'],height=info['height'],dpi=info['dpi'],size=path.stat().st_size)
                 except Exception as exc:item.update(status='error',detail=str(exc))
                 self._files.append(item)
             if paths:

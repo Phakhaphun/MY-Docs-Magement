@@ -2,13 +2,16 @@
 
 ## 0.0.3 — 2026-11-08
 
+- ปรับ Image to PDF จากแนวทาง iLovePDF/PDF24/Sejda เพิ่ม live paper preview ตามสัดส่วนจริง เส้นระยะขอบ ปุ่มแนวกระดาษ preset ระยะขอบ และเรียงภาพตามชื่อ/กลับลำดับ พร้อมแยก Change folder ให้อยู่ในมุมมองเสมอ
+- เพิ่มเป็น 20 ตัวเลือกกระดาษ: ISO A0–A6, ISO/JIS B4–B5, Letter/Legal/Tabloid/Executive/Folio, รูปถ่าย 4×6/5×7, Original และ Custom กรอกกว้าง/สูง mm พร้อมสลับด้านได้ ตรวจระยะขอบและขนาดซ้ำก่อนส่งออก
+
 - เพิ่มเมนู Image to PDF บน branch `feature/image-to-pdf` รองรับ JPG/PNG/WebP พร้อม Grid ลากเรียง ปุ่มเลื่อน/หมุนซ้ายขวา/ลบ และภาพย่อโหลดตามตำแหน่งเลื่อน
 - เพิ่ม A4/Letter/Original size, Auto/Portrait/Landscape, ระยะขอบ 0–50 mm และรวมเป็นไฟล์เดียว/แยกต่อภาพ แก้ทิศทางกล้อง EXIF และคงภาพโปร่งใสบนพื้นกระดาษขาว
 - ประมวลผลใน process แยก ไม่ต้องมี GPU ไม่แก้ต้นฉบับ ไม่บีบอัด JPEG ปกติซ้ำ ตั้งชื่อโฟลเดอร์ตามภาพ และป้องกันชื่อชน
 - เพิ่ม popup ผลลัพธ์พร้อม Done/Open output folder, View result และส่งต่อ PDF เข้า OCR/Compress โดยไม่ล้างคิวหรือเริ่มงานปลายทางเอง ตรวจปลายทางไม่ว่างและ result id ก่อนส่ง
 - มี Cancel สีแดงและเก็บ PDF แยกที่เสร็จแล้ว รวมถึงเมื่อภาพถูกลบระหว่างทำงาน ไม่เผยแพร่ PDF ที่ยังไม่ครบและไม่ทิ้ง partial files
 - เพิ่มเวอร์ชัน 0.0.2 → 0.0.3 ตามนโยบายเพิ่มเมนูใหม่ครั้งละ 0.0.1 แสดงเวอร์ชันในแอป และ commit เฉพาะ local
-- ผลตรวจ: unittest ทั้งโปรเจกต์ 91 รายการผ่าน รวม EXIF/ภาพโปร่งใส; smoke_image_pdf ผ่านบน WebView2 จริง 1280×820 / 1080×700 รวม drag/ปุ่มเรียง/หมุน/ลบ รวม/แยก PDF, การส่งต่อ OCR/Compress, cancellation และ popup; smoke_management ตรวจเมนูเดิมผ่าน
+- ผลตรวจล่าสุด: unittest ทั้งโปรเจกต์ 93 รายการผ่าน รวมขนาดกระดาษเพิ่ม/Custom/ระยะขอบผิด, EXIF/ภาพโปร่งใส; smoke_image_pdf ผ่านบน WebView2 จริง 1280×820 / 1080×700 รวมสัดส่วน preview, sort, ปุ่มแนว/ระยะขอบ, Custom/swap, drag/เรียง/หมุน/ลบ รวม/แยก PDF, การส่งต่อ OCR/Compress, cancellation และ popup; smoke_management ตรวจเมนูเดิมผ่านในการเพิ่มเมนูครั้งแรก
 
 ## Unreleased — Source-based export folders
 
