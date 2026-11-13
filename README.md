@@ -1,6 +1,6 @@
 # Docspace · Main Management
 
-Version **0.0.4** (Git tag: `0.0.4`)
+Version **0.0.5** (Git tag: `0.0.5`)
 
 การออกเวอร์ชันและ tag ครั้งถัดไปเพิ่ม patch ทีละ 1 เช่น `0.0.4 → 0.0.5 → 0.0.6` โดยให้ tag ตรงกับไฟล์ `VERSION` และสร้าง commit/tag/push เมื่อผู้ใช้สั่ง
 
